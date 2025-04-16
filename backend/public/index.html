@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Узлы учета энергоресурсов</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .device-container {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .device-title {
+      color: #3498db;
+      margin-top: 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .data-item {
+      margin: 5px 0;
+    }
+
+    .timestamp {
+      font-size: 0.8em;
+      color: #7f8c8d;
+      text-align: right;
+    }
+
+    .error {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Данные узлов учета энергоресурсов</h1>
+  <div id="data">
+    <p>Ожидание данных от сервера...</p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Функция для форматирования даты
+    function formatDate(dateString) {
+      if (!dateString) return 'Нет данных';
+      const date = new Date(dateString);
+      return date.toLocaleString('ru-RU');
+    }
+
+    // Функция для создания блока с данными устройства
+    function createDeviceBlock(deviceName, deviceData) {
+      if (!deviceData || !deviceData.data) {
+        return `
+          <div class="device-container">
+            <h2 class="device-title">${deviceName}</h2>
+            <p class="error">Нет данных от устройства</p>
+          </div>
+        `;
+      }
+
+      const { data, deviceInfo, timestamp } = deviceData;
+
+      console.log(deviceData);
+
+      const hasError = data.error;
+
+      let html = `
+        <div class="device-container">
+          <h2 class="device-title">${deviceInfo?.deviceName || deviceName}</h2>
+          ${hasError ? '<p class="error">Ошибка получения данных</p>' : ''}
+      `;
+
+      // Добавляем все поля данных
+      for (const [key, value] of Object.entries(data)) {
+        if (key !== 'error') {
+          html += `
+            <div class="data-item">
+              <strong>${key}:</strong> ${value !== undefined ? value : 'N/A'}
+            </div>
+          `;
+        }
+      }
+
+      // Добавляем временную метку
+      html += `
+          <div class="timestamp">
+            Последнее обновление: ${formatDate(timestamp)}
+          </div>
+        </div>
+      `;
+
+      return html;
+    }
+
+    // Функция для обновления данных на странице
+    function updateData(data) {
+      const container = document.getElementById('data');
+
+      if (!data) {
+        container.innerHTML = '<p class="error">Не удалось получить данные от сервера</p>';
+        return;
+      }
+
+      let html = '';
+
+      // Создаем блоки для каждого устройства в определенном порядке
+      const deviceOrder = ['k301', 'k302', 'BB551', 'BB690', 'BB93', 'CC125', 'CC168'];
+
+      deviceOrder.forEach(deviceName => {
+        html += createDeviceBlock(deviceName, {
+          data: data[deviceName],
+          deviceInfo: data[deviceName]?.deviceInfo,
+          timestamp: data[deviceName]?.timestamp
+        });
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Обработчики событий socket.io
+    socket.on('connect', () => {
+      console.log('Подключено к серверу');
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('data').innerHTML = '<p class="error">Соединение с сервером потеряно</p>';
+    });
+
+    socket.on('deviceData', (data) => {
+      console.log('Получены новые данные:', data);
+      updateData(data);
+    });
+  </script>
+</body>
+
+</html>
