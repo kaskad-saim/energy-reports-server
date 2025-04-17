@@ -1,0 +1,43 @@
+@use '../../styles/mixins' as mixins;
+@use '../../styles/variables' as vars;
+
+.table-header {
+  background-color: vars.$white-smoke;
+  border: 1px solid vars.$hulk;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 0;
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    margin-bottom: 0;
+    text-align: center;
+    @include mixins.text-style(24px, 30px, 700, vars.$hulk);
+  }
+  &__title-span {
+    @include mixins.text-style(22px, 30px, 600, vars.$black);
+  }
+  &__box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &__date {
+    margin-right: 20px;
+    @include mixins.text-style(22px, 30px, 600, vars.$black);
+  }
+  &__time {
+    @include mixins.text-style(22px, 30px, 600, vars.$black);
+  }
+  &__subtitle {
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    @include mixins.text-style(20px, 29px, 600, vars.$black);
+  }
+  &__subtitle-span {
+    margin-left: 15px;
+    @include mixins.text-style(20px, 29px, 600, vars.$blue);
+  }
+}
