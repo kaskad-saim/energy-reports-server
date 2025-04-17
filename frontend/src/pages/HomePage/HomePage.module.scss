@@ -1,30 +1,56 @@
+// src/pages/HomePage/HomePage.module.scss
 .home-page {
   padding: 20px;
-  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
 
   &__title {
-    font-size: 24px;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+}
+
+.devices-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.device-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+
+  &__title {
+    margin-top: 0;
+    color: #2c3e50;
+  }
+
+  &__description {
+    color: #7f8c8d;
     margin-bottom: 20px;
   }
 
-  .navigation {
+  &__buttons {
     display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-    &__link {
-      text-decoration: none;
-      color: #333;
-      padding: 10px 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      transition: background-color 0.3s, color 0.3s;
+  &__button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
 
-      &:hover {
-        background-color: #007bff;
-        color: #fff;
-      }
+    &:hover {
+      background-color: #2980b9;
     }
   }
 }

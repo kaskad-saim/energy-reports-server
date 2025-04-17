@@ -1,0 +1,81 @@
+@use '../../styles/mixins' as mixins;
+@use '../../styles/variables' as vars;
+
+.contentContainer {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.loaderContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.reactLogo {
+  width: 120px;
+  height: 120px;
+  animation: rotate 3s linear infinite;
+}
+
+.reactSvg {
+  width: 100%;
+  height: 100%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+}
+
+.loaderText {
+  margin-top: 20px;
+  @include mixins.text-style(24px, 24px, 600, vars.$hulk);
+}
+
+/* Анимация для орбит */
+@keyframes orbitDash {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 50;
+  }
+}
+
+.orbit1,
+.orbit2,
+.orbit3 {
+  stroke-dasharray: 40, 10; /* Большой разрыв (80 - длина линии, 20 - длина разрыва) */
+  animation: orbitDash 1s linear infinite; /* Быстрая анимация без пауз */
+}
+
+.orbit2 {
+  animation-duration: 0.8s; /* Разная скорость для каждой орбиты */
+  animation-direction: reverse; /* Движение в обратном направлении */
+}
+
+.orbit3 {
+  animation-duration: 0.7s;
+}

@@ -1,4 +1,4 @@
-const ChartsPage = () => {
+const K301Charts  = () => {
   return (
     <div className="charts-page">
       <h1>Графики</h1>
@@ -7,4 +7,4 @@ const ChartsPage = () => {
   );
 };
 
-export default ChartsPage
+export default K301Charts

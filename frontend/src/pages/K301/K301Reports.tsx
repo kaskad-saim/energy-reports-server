@@ -1,4 +1,4 @@
-const ReportsPage = () => {
+const K301Reports  = () => {
   return (
     <div className="reports-page">
       <h1>Отчеты</h1>
@@ -7,4 +7,4 @@ const ReportsPage = () => {
   );
 };
 
-export default ReportsPage
+export default K301Reports
