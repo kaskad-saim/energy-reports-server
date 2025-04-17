@@ -35,12 +35,12 @@ const UPcarbonizParPage = () => {
 
   return (
     <div className={styles['UPcarbonizPar-page']}>
-      <TableHeader title='УП карбонизация пар' />
+      <TableHeader title="УП карбонизация пар" />
       <div className={styles['table-container']}>
         <h2 className={styles['table-title']}>Параметры устройства</h2>
         {connectionStatus === 'connected' && deviceData ? (
           <table className={styles['device-table']}>
-             <thead>
+            <thead>
               <tr>
                 <th colSpan={2}>{deviceData.deviceName}</th>
               </tr>
@@ -60,9 +60,13 @@ const UPcarbonizParPage = () => {
                 ))}
             </tbody>
           </table>
-        ) : (
+        ) : connectionStatus === 'connecting' ? (
           <Loader />
-        )}
+        ) : connectionStatus === 'disconnected' ? (
+          <p className={styles['error-message']}>Соединение с сервером потеряно. Попробуйте перезагрузить страницу.</p>
+        ) : connectionStatus === 'error' ? (
+          <p className={styles['error-message']}>Ошибка подключения к серверу. Проверьте настройки соединения.</p>
+        ) : null}
       </div>
     </div>
   );

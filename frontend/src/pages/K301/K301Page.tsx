@@ -61,9 +61,13 @@ const K301Page = () => {
                 ))}
             </tbody>
           </table>
-        ) : (
+        ) : connectionStatus === 'connecting' ? (
           <Loader />
-        )}
+        ) : connectionStatus === 'disconnected' ? (
+          <p className={styles['error-message']}>Соединение с сервером потеряно. Попробуйте перезагрузить страницу.</p>
+        ) : connectionStatus === 'error' ? (
+          <p className={styles['error-message']}>Ошибка подключения к серверу. Проверьте настройки соединения.</p>
+        ) : null}
       </div>
     </div>
   );
