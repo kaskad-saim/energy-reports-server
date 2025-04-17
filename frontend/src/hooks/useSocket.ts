@@ -1,22 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import io, { Socket } from 'socket.io-client';
 
 interface UseSocketOptions {
-  url: string;
   reconnectionAttempts?: number;
   reconnectionDelay?: number;
   autoConnect?: boolean;
 }
 
-export const useSocket = (options: UseSocketOptions) => {
+export const useSocket = (options: UseSocketOptions = {}) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<string>('connecting');
+  const optionsRef = useRef(options);
 
   useEffect(() => {
-    const socketInstance = io(options.url, {
-      reconnectionAttempts: options.reconnectionAttempts || 5,
-      reconnectionDelay: options.reconnectionDelay || 1000,
-      autoConnect: options.autoConnect ?? true,
+    optionsRef.current = options;
+  }, [options]);
+
+  useEffect(() => {
+    const socketInstance = io(import.meta.env.VITE_SOCKET_SERVER_URL, {
+      reconnectionAttempts: optionsRef.current.reconnectionAttempts || 5,
+      reconnectionDelay: optionsRef.current.reconnectionDelay || 1000,
+      autoConnect: optionsRef.current.autoConnect ?? true,
       transports: ['websocket'],
     });
 
@@ -51,7 +55,7 @@ export const useSocket = (options: UseSocketOptions) => {
       socketInstance.off('connect_error', handleConnectError);
       socketInstance.disconnect();
     };
-  }, [options.url]);
+  }, []);
 
   return { socket, connectionStatus };
 };

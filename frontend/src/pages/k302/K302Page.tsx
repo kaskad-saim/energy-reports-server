@@ -1,11 +1,12 @@
+// src/pages/K302/K302Page.tsx
 import { useEffect, useState } from 'react';
-import styles from './K301Page.module.scss';
+import styles from './K302Page.module.scss';
 import { useSocket } from '../../hooks/useSocket';
 import { DeviceData } from '../../types/types';
 import TableHeader from '../../components/Tableheader/TableHeader';
 import Loader from '../../ui/loader/Loader';
 
-const K301Page = () => {
+const K302Page = () => {
   const { socket, connectionStatus } = useSocket({
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
@@ -18,12 +19,11 @@ const K301Page = () => {
     if (!socket) return;
 
     const handleDeviceData = (data: Record<string, DeviceData>) => {
-      const k301Data = data['k301'];
+      const k302Data = data['k302'];
+      console.log(k302Data);
 
-      console.log(k301Data);
-
-      if (k301Data) {
-        setDeviceData(k301Data);
+      if (k302Data) {
+        setDeviceData(k302Data);
       }
     };
 
@@ -35,13 +35,13 @@ const K301Page = () => {
   }, [socket]);
 
   return (
-    <div className={styles['k301-page']}>
+    <div className={styles['k302-page']}>
       <TableHeader title='Корпус 301' />
       <div className={styles['table-container']}>
         <h2 className={styles['table-title']}>Параметры устройства</h2>
         {connectionStatus === 'connected' && deviceData ? (
           <table className={styles['device-table']}>
-            <thead>
+             <thead>
               <tr>
                 <th colSpan={2}>{deviceData.deviceName}</th>
               </tr>
@@ -69,4 +69,4 @@ const K301Page = () => {
   );
 };
 
-export default K301Page;
+export default K302Page;

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import styles from './K301Page.module.scss';
+import styles from './UPcarbonizPar.module.scss';
 import { useSocket } from '../../hooks/useSocket';
 import { DeviceData } from '../../types/types';
 import TableHeader from '../../components/Tableheader/TableHeader';
 import Loader from '../../ui/loader/Loader';
 
-const K301Page = () => {
+const UPcarbonizParPage = () => {
   const { socket, connectionStatus } = useSocket({
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
@@ -18,12 +18,11 @@ const K301Page = () => {
     if (!socket) return;
 
     const handleDeviceData = (data: Record<string, DeviceData>) => {
-      const k301Data = data['k301'];
+      const UPcarbonizParData = data['BB690'];
+      console.log(UPcarbonizParData);
 
-      console.log(k301Data);
-
-      if (k301Data) {
-        setDeviceData(k301Data);
+      if (UPcarbonizParData) {
+        setDeviceData(UPcarbonizParData);
       }
     };
 
@@ -35,13 +34,13 @@ const K301Page = () => {
   }, [socket]);
 
   return (
-    <div className={styles['k301-page']}>
-      <TableHeader title='Корпус 301' />
+    <div className={styles['UPcarbonizPar-page']}>
+      <TableHeader title='УП карбонизация пар' />
       <div className={styles['table-container']}>
         <h2 className={styles['table-title']}>Параметры устройства</h2>
         {connectionStatus === 'connected' && deviceData ? (
           <table className={styles['device-table']}>
-            <thead>
+             <thead>
               <tr>
                 <th colSpan={2}>{deviceData.deviceName}</th>
               </tr>
@@ -69,4 +68,4 @@ const K301Page = () => {
   );
 };
 
-export default K301Page;
+export default UPcarbonizParPage;

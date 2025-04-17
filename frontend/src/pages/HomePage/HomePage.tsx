@@ -6,9 +6,19 @@ const devices = [
   {
     id: 'k301',
     name: 'Узел учета K301',
-    description: 'Устройство контроля энергопотребления в цехе №3',
   },
-  // Здесь можно добавить другие устройства в будущем
+  {
+    id: 'k302',
+    name: 'Узел учета K302',
+  },
+  {
+    id: 'UPcarbonizPar',
+    name: 'УП карбонизация пар',
+  },
+  {
+    id: 'MPA11',
+    name: 'МПА11',
+  },
 ];
 
 const HomePage = () => {
@@ -20,7 +30,6 @@ const HomePage = () => {
         {devices.map((device) => (
           <div key={device.id} className={styles['device-card']}>
             <h2 className={styles['device-card__title']}>{device.name}</h2>
-            <p className={styles['device-card__description']}>{device.description}</p>
 
             <div className={styles['device-card__buttons']}>
               <Link
