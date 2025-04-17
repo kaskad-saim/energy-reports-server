@@ -1,6 +1,9 @@
 // src/pages/HomePage/HomePage.tsx
 import { Link } from 'react-router-dom';
 import styles from './HomePage.module.scss';
+import { useSocket } from '../../hooks/useSocket';
+import { useEffect } from 'react';
+import { DeviceData } from '../../types/types';
 
 const devices = [
   {
@@ -22,6 +25,26 @@ const devices = [
 ];
 
 const HomePage = () => {
+  const { socket, connectionStatus } = useSocket();
+
+  useEffect(() => {
+    if (socket) {
+      console.log('Статус соединения:', connectionStatus);
+
+      // Подписываемся на событие 'deviceData', которое отправляет сервер
+      const handleDeviceData = (data: DeviceData) => {
+        console.log('Данные с сервера:', data);
+      };
+
+      socket.on('deviceData', handleDeviceData);
+
+      // Отписываемся от события при размонтировании компонента
+      return () => {
+        socket.off('deviceData', handleDeviceData);
+      };
+    }
+  }, [socket, connectionStatus]);
+
   return (
     <div className={styles['home-page']}>
       <h1 className={styles['home-page__title']}>Узлы учета энергоресурсов</h1>
@@ -32,24 +55,15 @@ const HomePage = () => {
             <h2 className={styles['device-card__title']}>{device.name}</h2>
 
             <div className={styles['device-card__buttons']}>
-              <Link
-                to={`/${device.id}`}
-                className={styles['device-card__button']}
-              >
+              <Link to={`/${device.id}`} className={styles['device-card__button']}>
                 Текущие параметры
               </Link>
 
-              <Link
-                to={`/${device.id}/charts`}
-                className={styles['device-card__button']}
-              >
+              <Link to={`/${device.id}/charts`} className={styles['device-card__button']}>
                 Графики
               </Link>
 
-              <Link
-                to={`/${device.id}/reports`}
-                className={styles['device-card__button']}
-              >
+              <Link to={`/${device.id}/reports`} className={styles['device-card__button']}>
                 Отчеты
               </Link>
             </div>
