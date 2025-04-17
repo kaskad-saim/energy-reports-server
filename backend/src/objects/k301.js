@@ -6,14 +6,31 @@ export const pollK301 = async (client) => {
   const deviceName = 'k301';
   const config = deviceConfigs[deviceName];
 
+  // Базовый объект с null значениями
+  const baseData = {
+    deviceName: config.deviceName,
+    port: config.port,
+    baudRate: config.baudRate,
+    slaveId: config.slaveId,
+    qt1: null,
+    wt1: null,
+    qo1: null,
+    qo2: null,
+    t1: null,
+    t2: null,
+    p1: null,
+    p2: null,
+    qm1: null,
+    qm2: null,
+    timestamp: new Date(),
+    error: null
+  };
+
   try {
     client.setID(config.slaveId);
 
     const newData = {
-      deviceName: config.deviceName,
-      port: config.port,
-      baudRate: config.baudRate,
-      slaveId: config.slaveId,
+      ...baseData,
       qt1: parseFloat((await readRegister(client, config.registers.qt1)).toFixed(2)),
       wt1: parseFloat((await readRegister(client, config.registers.wt1)).toFixed(2)),
       qo1: parseFloat((await readRegister(client, config.registers.qo1)).toFixed(2)),
@@ -24,7 +41,6 @@ export const pollK301 = async (client) => {
       p2: parseFloat((await readRegister(client, config.registers.p2)).toFixed(2)),
       qm1: parseFloat((await readRegister(client, config.registers.qm1)).toFixed(2)),
       qm2: parseFloat((await readRegister(client, config.registers.qm2)).toFixed(2)),
-      timestamp: new Date(),
       error: null
     };
 
@@ -34,12 +50,8 @@ export const pollK301 = async (client) => {
   } catch (err) {
     console.error(`Ошибка опроса ${deviceName}:`, err.message);
     updateDeviceData(deviceName, {
-      deviceName: config.deviceName,
-      port: config.port,
-      baudRate: config.baudRate,
-      slaveId: config.slaveId,
-      error: err.message,
-      timestamp: new Date()
+      ...baseData,
+      error: err.message
     });
   }
 };

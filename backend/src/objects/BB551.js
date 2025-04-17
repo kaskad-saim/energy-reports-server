@@ -6,14 +6,29 @@ export const pollBB551 = async (client) => {
   const deviceName = 'BB551';
   const config = deviceConfigs[deviceName];
 
+  // Базовый объект с null значениями
+  const baseData = {
+    deviceName: config.deviceName,
+    port: config.port,
+    baudRate: config.baudRate,
+    slaveId: config.slaveId,
+    wt1: null,
+    p1: null,
+    qo1: null,
+    qm1: null,
+    wtAccumulated: null,
+    wpAccumulated: null,
+    wtFlow: null,
+    wpFlow: null,
+    timestamp: new Date(),
+    error: null
+  };
+
   try {
     client.setID(config.slaveId);
 
     const newData = {
-      deviceName: config.deviceName,
-      port: config.port,
-      baudRate: config.baudRate,
-      slaveId: config.slaveId,
+      ...baseData,
       wt1: parseFloat((await readRegister(client, config.registers.wt1)).toFixed(2)),
       p1: parseFloat((await readRegister(client, config.registers.p1)).toFixed(2)),
       qo1: parseFloat((await readRegister(client, config.registers.qo1)).toFixed(2)),
@@ -22,7 +37,6 @@ export const pollBB551 = async (client) => {
       wpAccumulated: parseFloat((await readRegister(client, config.registers.wpAccumulated)).toFixed(2)),
       wtFlow: parseFloat((await readRegister(client, config.registers.wtFlow)).toFixed(2)),
       wpFlow: parseFloat((await readRegister(client, config.registers.wpFlow)).toFixed(2)),
-      timestamp: new Date(),
       error: null
     };
 
@@ -32,12 +46,8 @@ export const pollBB551 = async (client) => {
   } catch (err) {
     console.error(`Ошибка опроса ${deviceName}:`, err.message);
     updateDeviceData(deviceName, {
-      deviceName: config.deviceName,
-      port: config.port,
-      baudRate: config.baudRate,
-      slaveId: config.slaveId,
-      error: err.message,
-      timestamp: new Date()
+      ...baseData,
+      error: err.message
     });
   }
 };

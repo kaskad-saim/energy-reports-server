@@ -21,10 +21,6 @@ console.log('Env loaded:', {
   PORT: process.env.PORT
 });
 
-// Отладочные сообщения
-console.log('Initial NODE_ENV:', process.env.NODE_ENV);
-console.log('Initial PORT:', process.env.PORT);
-
 const app = express();
 app.use(express.static('public'));
 
