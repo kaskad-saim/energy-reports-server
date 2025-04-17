@@ -55,7 +55,7 @@ const UPcarbonizParPage = () => {
                 .map(([key, value]) => (
                   <tr key={key}>
                     <td>{key}</td>
-                    <td>{value ?? 'N/A'}</td>
+                    <td>{value ?? 'NaN'}</td>
                   </tr>
                 ))}
             </tbody>

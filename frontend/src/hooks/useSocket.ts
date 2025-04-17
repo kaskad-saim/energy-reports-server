@@ -18,7 +18,8 @@ export const useSocket = (options: UseSocketOptions = {}) => {
 
   useEffect(() => {
     const socketInstance = io(import.meta.env.VITE_SOCKET_SERVER_URL, {
-      reconnectionAttempts: optionsRef.current.reconnectionAttempts || 5,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: optionsRef.current.reconnectionDelay || 1000,
       autoConnect: optionsRef.current.autoConnect ?? true,
       transports: ['websocket'],
@@ -41,9 +42,15 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       setConnectionStatus('error');
     };
 
+    const handleReconnect = () => {
+      console.log('Соединение восстановлено');
+      setConnectionStatus('connected');
+    };
+
     socketInstance.on('connect', handleConnect);
     socketInstance.on('disconnect', handleDisconnect);
     socketInstance.on('connect_error', handleConnectError);
+    socketInstance.on('reconnect', handleReconnect);
 
     if (!socketInstance.connected) {
       socketInstance.connect();
@@ -53,6 +60,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       socketInstance.off('connect', handleConnect);
       socketInstance.off('disconnect', handleDisconnect);
       socketInstance.off('connect_error', handleConnectError);
+      socketInstance.off('reconnect', handleReconnect); 
       socketInstance.disconnect();
     };
   }, []);
