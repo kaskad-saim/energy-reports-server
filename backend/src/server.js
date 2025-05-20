@@ -8,6 +8,8 @@ import dotenv from 'dotenv';
 import { comPortManager } from './services/modbus/comPortManager.js';
 import reportRoutes from './routes/reportRoutes.js';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Загружаем переменные окружения
 dotenv.config();
@@ -23,11 +25,15 @@ console.log('Env loaded:', {
   PORT: process.env.PORT,
 });
 
+
+// Получаем __dirname в ES Module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.static('public'));
 
 // Подключение к MongoDB
 connectDB();
@@ -39,6 +45,16 @@ initSocket(io);
 
 // маршруты
 app.use('/api/reports', reportRoutes);
+
+
+
+// Раздача статики из папки frontend (например, после билда)
+app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
+// Роут для SPA — перенаправление всех запросов на index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../frontend/dist', 'index.html'));
+});
 
 // Запускаем сервер
 const PORT = process.env.PORT || 3000;
