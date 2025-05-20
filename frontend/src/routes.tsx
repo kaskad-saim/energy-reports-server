@@ -8,6 +8,7 @@ import K301Reports from './pages/K301/K301Reports';
 import K302Page from './pages/k302/K302Page';
 import UPcarbonizParPage from './pages/UPcarbonizPar/UPcarbonizPar';
 import MPA11Page from './pages/MPA11/MPA11';
+import K302Reports from './pages/k302/K302Reports';
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: 'k301/reports', element: <K301Reports /> },
       // K302
       { path: 'k302', element: <K302Page /> },
+      { path: 'k302/reports', element: <K302Reports /> },
 
       //  УП карбонизация пар
       { path: 'UPcarbonizPar', element: <UPcarbonizParPage /> },
