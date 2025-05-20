@@ -6,6 +6,8 @@ import { pollDevicesWithSharedConnection } from './services/globalClient.js';
 import { connectDB } from './services/dataBase.js';
 import dotenv from 'dotenv';
 import { comPortManager } from './services/modbus/comPortManager.js';
+import reportRoutes from './routes/reportRoutes.js';
+import cors from 'cors';
 
 // Загружаем переменные окружения
 dotenv.config();
@@ -18,20 +20,25 @@ if (!process.env.NODE_ENV) {
 // Проверка загрузки переменных
 console.log('Env loaded:', {
   NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT
+  PORT: process.env.PORT,
 });
 
 const app = express();
-app.use(express.static('public'));
 
-const server = createServer(app);
-const io = new Server(server);
+// Middleware
+app.use(cors());
+app.use(express.static('public'));
 
 // Подключение к MongoDB
 connectDB();
 
 // Инициализация Socket.IO
+const server = createServer(app);
+const io = new Server(server);
 initSocket(io);
+
+// маршруты
+app.use('/api/reports', reportRoutes);
 
 // Запускаем сервер
 const PORT = process.env.PORT || 3000;
