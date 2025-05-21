@@ -4,7 +4,7 @@ import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
 import { HourlyReportItem } from '../../types/reportTypes';
 
 const K301Reports = () => {
-  const { data, loading, error } = useHourlyReportByUrl('http://localhost:3002/api/reports/k301-hourly');
+  const { data, loading, error } = useHourlyReportByUrl('/api/reports/k301-hourly');
 
   console.log(data);
 

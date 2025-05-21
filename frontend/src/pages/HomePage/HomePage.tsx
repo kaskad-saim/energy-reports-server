@@ -29,19 +29,8 @@ const devices = [
 
 const HomePage = () => {
   const { socket, connectionStatus } = useSocket();
-
-  const {
-    data: k301Data,
-    loading: k301Loading,
-    error: k301Error,
-  } = useHourlyReportByUrl('http://localhost:3002/api/reports/k301-hourly');
-
-  const {
-    data: k302Data,
-    loading: k302Loading,
-    error: k302Error,
-  } = useHourlyReportByUrl('http://localhost:3002/api/reports/k302-hourly');
-
+  const { data: k301Data, loading: k301Loading, error: k301Error } = useHourlyReportByUrl('/api/reports/k301-hourly');
+  const { data: k302Data, loading: k302Loading, error: k302Error } = useHourlyReportByUrl('/api/reports/k302-hourly');
   const loading = k301Loading || k302Loading;
   const error = k301Error || k302Error;
 

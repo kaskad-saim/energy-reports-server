@@ -5,7 +5,7 @@ import { HourlyReportItem } from '../../types/reportTypes';
 import Loader from '../../ui/loader/Loader';
 
 const K302Reports = () => {
-  const { data, loading, error } = useHourlyReportByUrl('http://localhost:3002/api/reports/k302-hourly');
+  const { data, loading, error } = useHourlyReportByUrl('/api/reports/k302-hourly');
 
   if (loading) return <Loader />;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
