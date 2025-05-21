@@ -3,9 +3,19 @@ import UniversalReportTable from '../../components/UniversalReportTable/Universa
 import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
 import { HourlyReportItem } from '../../types/reportTypes';
 import Loader from '../../ui/loader/Loader';
+import { useState } from 'react';
 
 const K302Reports = () => {
-  const { data, loading, error } = useHourlyReportByUrl('/api/reports/k302-hourly');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+
+  const dateParam = selectedDate
+    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(
+        selectedDate.getDate()
+      ).padStart(2, '0')}`
+    : '';
+
+  const { data, loading, error } = useHourlyReportByUrl(`/api/reports/k302-hourly?date=${dateParam}`);
+
 
   if (loading) return <Loader />;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
@@ -43,6 +53,8 @@ const K302Reports = () => {
         mode="single"
         loading={loading}
         error={error}
+        selectedDate={selectedDate}
+        onDateChange={setSelectedDate}
       />
     </div>
   );

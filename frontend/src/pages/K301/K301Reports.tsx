@@ -1,13 +1,19 @@
+import { useState } from 'react';
 import styles from './K301Reports.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
 import { HourlyReportItem } from '../../types/reportTypes';
 
 const K301Reports = () => {
-  const { data, loading, error } = useHourlyReportByUrl('/api/reports/k301-hourly');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  console.log(data);
+  const dateParam = selectedDate
+    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(
+        selectedDate.getDate()
+      ).padStart(2, '0')}`
+    : '';
 
+  const { data, loading, error } = useHourlyReportByUrl(`/api/reports/k301-hourly?date=${dateParam}`);
 
   const columns = [
     {
@@ -32,8 +38,6 @@ const K301Reports = () => {
 
   return (
     <div className={styles['reports-page']}>
-      <h1>Суточный отчет по K301</h1>
-
       <UniversalReportTable<HourlyReportItem>
         data={data}
         columns={columns}
@@ -42,6 +46,8 @@ const K301Reports = () => {
         mode="single"
         loading={loading}
         error={error}
+        selectedDate={selectedDate}
+        onDateChange={setSelectedDate}
       />
     </div>
   );
