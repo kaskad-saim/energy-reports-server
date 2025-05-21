@@ -5,8 +5,9 @@ import { getHourlyK302Report } from '../reports/k302HourlyReport.js';
 const router = express.Router();
 
 router.get('/k301-hourly', async (req, res) => {
+  const { date } = req.query;
   try {
-    const report = await getHourlyK301Report();
+    const report = await getHourlyK301Report(date);
     res.json(report);
   } catch (error) {
     console.error('Ошибка при формировании отчета:', error);
@@ -15,8 +16,9 @@ router.get('/k301-hourly', async (req, res) => {
 });
 
 router.get('/k302-hourly', async (req, res) => {
+  const { date } = req.query;
   try {
-    const report = await getHourlyK302Report();
+    const report = await getHourlyK302Report(date);
     res.json(report);
   } catch (error) {
     console.error('Ошибка при формировании отчета:', error);
