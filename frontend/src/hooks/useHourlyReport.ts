@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { HourlyReportItem } from '../types/reportTypes';
 
-const BASE_URL = 'http://localhost:3002';
+const BASE_URL = 'http://localhost:3003';
 
 export const useHourlyReportByUrl = (relativePath: string) => {
   const [data, setData] = useState<HourlyReportItem[]>([]);
@@ -26,7 +26,7 @@ export const useHourlyReportByUrl = (relativePath: string) => {
     };
 
     loadData();
-  }, [relativePath]); 
+  }, [relativePath]);
 
   return { data, loading, error };
 };
