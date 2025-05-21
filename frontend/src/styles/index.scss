@@ -61,3 +61,13 @@ body::-webkit-scrollbar-thumb {
   padding-right: 10px;
   margin: 0 auto;
 }
+
+
+.react-datepicker-popper {
+  left: -32px !important;
+}
+
+
+.react-datepicker__day--selected {
+  background-color: green !important;
+}

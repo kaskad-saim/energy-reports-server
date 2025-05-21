@@ -9,6 +9,7 @@ import K302Page from './pages/k302/K302Page';
 import UPcarbonizParPage from './pages/UPcarbonizPar/UPcarbonizPar';
 import MPA11Page from './pages/MPA11/MPA11';
 import K302Reports from './pages/k302/K302Reports';
+import SizodSumHourReport from './pages/SizodSumHourReport/SizodSumHourReport';
 
 export const router = createBrowserRouter([
   {
@@ -19,10 +20,12 @@ export const router = createBrowserRouter([
       // K301
       { path: 'k301', element: <K301Page /> },
       { path: 'k301/charts', element: <K301Charts /> },
-      { path: 'k301/reports', element: <K301Reports /> },
+      { path: 'k301/hourly-report', element: <K301Reports /> },
       // K302
       { path: 'k302', element: <K302Page /> },
-      { path: 'k302/reports', element: <K302Reports /> },
+      { path: 'k302/hourly-report', element: <K302Reports /> },
+      // sizod sum hour report
+      { path: 'sizod-sum-hour-report', element: <SizodSumHourReport /> },
 
       //  УП карбонизация пар
       { path: 'UPcarbonizPar', element: <UPcarbonizParPage /> },

@@ -1,0 +1,21 @@
+.styled-date-picker {
+  position: relative;
+
+  input {
+    padding: 8px 12px;
+    border: 1px solid #cfcfcf;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+
+    &:focus {
+      outline: none;
+      border-color: #4caf50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    }
+  }
+}
+
+.react-datepicker__day--selected {
+  background-color: red !important;
+}

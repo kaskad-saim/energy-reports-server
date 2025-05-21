@@ -8,8 +8,15 @@
   &__header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 16px;
+  }
+
+  &__header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
   }
 
   &__title {
@@ -57,8 +64,6 @@
     background-color: #c8e6c9;
   }
 
-
-
   &--multi-device {
     &__time-column {
       background-color: #81c784;
@@ -82,6 +87,12 @@
     }
   }
 
+  &__no-data-row {
+    text-align: center !important;
+    font-style: italic;
+    color: red;
+  }
+
   &__error,
   &__no-data {
     text-align: center;
@@ -92,8 +103,10 @@
 }
 
 .datePicker {
-  padding: 8px;
-  font-size: 16px;
+  padding: 5px;
+  font-size: 14px;
   border-radius: 4px;
   border: 1px solid #ccc;
 }
+
+

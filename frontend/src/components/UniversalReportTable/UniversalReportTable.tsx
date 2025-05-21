@@ -1,8 +1,8 @@
 import React from 'react';
 import styles from './UniversalReportTable.module.scss';
 import Loader from '../../ui/loader/Loader';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import StyledDatePicker from '../../ui/StyledDatePicker/StyledDatePicker';
 
 export interface ColumnConfig<T> {
   key: keyof T | string;
@@ -60,27 +60,23 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
 
   if (loading) return <Loader />;
   if (error) return <p className={styles['universal-report-table__error']}>{error}</p>;
-  if (!data?.length && !multiData)
-    return <p className={styles['universal-report-table__no-data']}>Нет данных для отображения</p>;
+  const hasData =
+    mode === 'multi-device'
+      ? multiData && Object.values(multiData).some((arr) => arr.length > 0)
+      : (data ?? []).length > 0;
 
   return (
     <div className={`${styles['universal-report-table']} ${styles['universal-report-table--with-calendar']}`}>
       {/* Заголовок и календарь */}
       <div className={styles['universal-report-table__header']}>
         <div className={`${styles['universal-report-table__header-left']}`}>
-          {title && <h2>{title}</h2>}
+          {title && <h2 className={`${styles['universal-report-table__title']} title-reset`}>{title}</h2>}
           {generatedAt && <p>Отчет сформирован: {generatedAt}</p>}
         </div>
-
         {onDateChange && (
           <div className={`${styles['universal-report-table__header-right']}`}>
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date) => onDateChange(date)}
-              dateFormat="yyyy-MM-dd"
-              className={styles.datePicker}
-              placeholderText="Выберите дату"
-            />
+            <span>Выберите период</span>
+            <StyledDatePicker selected={selectedDate} onChange={onDateChange} placeholderText="Выберите дату" />
           </div>
         )}
       </div>
@@ -113,39 +109,47 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
               </tr>
             </thead>
             <tbody>
-              {Object.values(multiData)
-                .find((arr) => arr.length > 0)
-                ?.map((_, index) => (
-                  <tr key={index}>
-                    {multiConfig.devices.map((device, i) => {
-                      const rowData = multiData[device.id]?.[index];
-                      const columnConfig = device.columnConfig || columns.find((c) => c.key === device.param);
-                      const value = rowData ? rowData[device.param] : null;
-
-                      if (i === 0 && rowData) {
-                        const timeValue = rowData[multiConfig.timeColumn];
-                        return (
-                          <React.Fragment key={device.id}>
-                            <td className={styles['universal-report-table__time-cell']}>
-                              {columnConfig?.render ? columnConfig.render(rowData) : formatValue(timeValue)}
+              {hasData ? (
+                Object.values(multiData)
+                  .find((arr) => arr.length > 0)
+                  ?.map((_, index) => (
+                    <tr key={index}>
+                      {multiConfig.devices.map((device, i) => {
+                        const rowData = multiData[device.id]?.[index];
+                        const columnConfig = device.columnConfig || columns.find((c) => c.key === device.param);
+                        const value = rowData ? rowData[device.param] : null;
+                        if (i === 0 && rowData) {
+                          const timeValue = rowData[multiConfig.timeColumn];
+                          return (
+                            <React.Fragment key={device.id}>
+                              <td className={styles['universal-report-table__time-cell']}>
+                                {columnConfig?.render ? columnConfig.render(rowData) : formatValue(timeValue)}
+                              </td>
+                              <td>{columnConfig?.render ? columnConfig.render(rowData) : formatValue(value)}</td>
+                            </React.Fragment>
+                          );
+                        }
+                        if (rowData) {
+                          return (
+                            <td key={device.id}>
+                              {columnConfig?.render ? columnConfig.render(rowData) : formatValue(value)}
                             </td>
-                            <td>{columnConfig?.render ? columnConfig.render(rowData) : formatValue(value)}</td>
-                          </React.Fragment>
-                        );
-                      }
-
-                      if (rowData) {
-                        return (
-                          <td key={device.id}>
-                            {columnConfig?.render ? columnConfig.render(rowData) : formatValue(value)}
-                          </td>
-                        );
-                      }
-
-                      return <td key={device.id}>-</td>;
-                    })}
-                  </tr>
-                ))}
+                          );
+                        }
+                        return <td key={device.id}>-</td>;
+                      })}
+                    </tr>
+                  ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={multiConfig.devices.length + 1}
+                    className={styles['universal-report-table__no-data-row']}
+                  >
+                    Нет данных для отображения
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         ) : (
@@ -161,14 +165,22 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
               </tr>
             </thead>
             <tbody>
-              {(data || []).map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {columns.map((col) => {
-                    const value = row[col.key as keyof T];
-                    return <td key={String(col.key)}>{col.render ? col.render(row) : formatValue(value)}</td>;
-                  })}
+              {(data || []).length > 0 ? (
+                (data || []).map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {columns.map((col) => {
+                      const value = row[col.key as keyof T];
+                      return <td key={String(col.key)}>{col.render ? col.render(row) : formatValue(value)}</td>;
+                    })}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={columns.length} className={styles['universal-report-table__no-data-row']}>
+                    Нет данных для отображения
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         )}
