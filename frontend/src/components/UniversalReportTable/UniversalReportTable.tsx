@@ -3,6 +3,7 @@ import styles from './UniversalReportTable.module.scss';
 import Loader from '../../ui/loader/Loader';
 import 'react-datepicker/dist/react-datepicker.css';
 import StyledDatePicker from '../../ui/StyledDatePicker/StyledDatePicker';
+import { calculateTotals } from '../../utils/calculateTotals';
 
 export interface ColumnConfig<T> {
   key: keyof T | string;
@@ -29,8 +30,6 @@ interface UniversalReportTableProps<T> {
   };
   loading?: boolean;
   error?: string | null;
-
-  // Новые пропсы для календаря
   selectedDate?: Date | null;
   onDateChange?: (date: Date | null) => void;
 }
@@ -45,11 +44,23 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
   multiConfig,
   loading = false,
   error = null,
-
-  // Пропсы для календаря
   selectedDate,
   onDateChange,
 }: UniversalReportTableProps<T>) => {
+  // Функция подсчёта итогов
+  const totals = React.useMemo(() => {
+    return calculateTotals<T>({
+      mode,
+      data,
+      multiData,
+      columns,
+      multiConfig,
+    });
+  }, [mode, data, multiData, columns, multiConfig]);
+
+  if (loading) return <Loader />;
+  if (error) return <p className={styles['universal-report-table__error']}>{error}</p>;
+
   const formatValue = (value: number | string | null | undefined): string => {
     if (value === null || value === undefined) return '-';
     if (typeof value === 'number') {
@@ -58,23 +69,23 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
     return String(value);
   };
 
-  if (loading) return <Loader />;
-  if (error) return <p className={styles['universal-report-table__error']}>{error}</p>;
   const hasData =
     mode === 'multi-device'
       ? multiData && Object.values(multiData).some((arr) => arr.length > 0)
       : (data ?? []).length > 0;
 
+  const hasTotals = Object.keys(totals).length > 0;
+
   return (
     <div className={`${styles['universal-report-table']} ${styles['universal-report-table--with-calendar']}`}>
       {/* Заголовок и календарь */}
       <div className={styles['universal-report-table__header']}>
-        <div className={`${styles['universal-report-table__header-left']}`}>
-          {title && <h2 className={`${styles['universal-report-table__title']} title-reset`}>{title}</h2>}
+        <div className={styles['universal-report-table__header-left']}>
+          {title && <h2 className={styles['universal-report-table__title']}>{title}</h2>}
           {generatedAt && <p>Отчет сформирован: {generatedAt}</p>}
         </div>
         {onDateChange && (
-          <div className={`${styles['universal-report-table__header-right']}`}>
+          <div className={styles['universal-report-table__header-right']}>
             <span>Выберите период</span>
             <StyledDatePicker selected={selectedDate} onChange={onDateChange} placeholderText="Выберите дату" />
           </div>
@@ -150,6 +161,27 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
                   </td>
                 </tr>
               )}
+
+              {/* Строка Итого */}
+              {hasTotals && (
+                <tr className={styles['universal-report-table__total-row']}>
+                  <td className={styles['universal-report-table__total-label']} style={{ textAlign: 'left' }}>
+                    Итого
+                  </td>
+                  {multiConfig.devices.map((device) => {
+                    const keyStr = device.param as string;
+                    const totalValue = totals[`${device.id}-${keyStr}`];
+                    return (
+                      <td
+                        key={`total-${device.id}-${keyStr}`}
+                        className={styles['universal-report-table__total-label']}
+                      >
+                        {typeof totalValue === 'number' ? totalValue.toFixed(2) : '-'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              )}
             </tbody>
           </table>
         ) : (
@@ -169,7 +201,8 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
                 (data || []).map((row, rowIndex) => (
                   <tr key={rowIndex}>
                     {columns.map((col) => {
-                      const value = row[col.key as keyof T];
+                      const keyStr = col.key as string;
+                      const value = row[keyStr];
                       return <td key={String(col.key)}>{col.render ? col.render(row) : formatValue(value)}</td>;
                     })}
                   </tr>
@@ -179,6 +212,24 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
                   <td colSpan={columns.length} className={styles['universal-report-table__no-data-row']}>
                     Нет данных для отображения
                   </td>
+                </tr>
+              )}
+
+              {/* Строка Итого */}
+              {hasTotals && (
+                <tr className={styles['universal-report-table__total-row']}>
+                  <td className={styles['universal-report-table__total-label']} style={{ textAlign: 'left' }}>
+                    Итого
+                  </td>
+                  {columns.slice(1).map((col) => {
+                    const keyStr = col.key as string;
+                    const totalValue = totals[keyStr];
+                    return (
+                      <td key={`total-${String(col.key)}`} className={styles['universal-report-table__total-label']}>
+                        {typeof totalValue === 'number' ? totalValue.toFixed(2) : '-'}
+                      </td>
+                    );
+                  })}
                 </tr>
               )}
             </tbody>

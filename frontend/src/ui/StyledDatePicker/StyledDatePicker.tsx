@@ -1,6 +1,8 @@
+// StyledDatePicker.tsx
 import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { ru } from 'date-fns/locale';
 import styles from './StyledDatePicker.module.scss';
 
 interface StyledDatePickerProps {
@@ -21,7 +23,7 @@ const StyledDatePicker: React.FC<StyledDatePickerProps> = ({
         onChange={onChange}
         dateFormat="yyyy-MM-dd"
         placeholderText={placeholderText}
-        locale="ru"
+        locale={ru} 
       />
     </div>
   );

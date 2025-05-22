@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/date-fns": "^2.6.3",
     "date-fns": "^4.1.0",
     "react": "^19.0.0",
     "react-datepicker": "^8.3.0",
@@ -20,6 +19,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@types/date-fns": "^2.6.3",
     "@types/node": "^22.14.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

@@ -10,6 +10,10 @@ import UPcarbonizParPage from './pages/UPcarbonizPar/UPcarbonizPar';
 import MPA11Page from './pages/MPA11/MPA11';
 import K302Reports from './pages/k302/K302Reports';
 import SizodSumHourReport from './pages/SizodSumHourReport/SizodSumHourReport';
+import UPcarbonizParReports from './pages/UPcarbonizPar/UPcarbonizParReports';
+import MPA11Reports from './pages/MPA11/MPA11Reports';
+import UPk10bParReports from './pages/UPk10bPar/UPk10bParReports';
+import UPk10bParPage from './pages/UPk10bPar/UPk10bPar';
 
 export const router = createBrowserRouter([
   {
@@ -29,9 +33,16 @@ export const router = createBrowserRouter([
 
       //  УП карбонизация пар
       { path: 'UPcarbonizPar', element: <UPcarbonizParPage /> },
+      { path: 'UPcarbonizPar/hourly-report', element: <UPcarbonizParReports /> },
 
       // МПА11
       { path: 'MPA11', element: <MPA11Page /> },
+      { path: 'MPA11/hourly-report', element: <MPA11Reports /> },
+
+      // УП 10б пар
+      { path: 'UPk10bPar', element: <UPk10bParPage /> },
+      { path: 'UPk10bPar/hourly-report', element: <UPk10bParReports /> },
+
     ],
   },
 ]);

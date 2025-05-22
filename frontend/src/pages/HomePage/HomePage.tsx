@@ -10,6 +10,8 @@ const devices = [
   { id: 'k302', name: 'Узел учета K302' },
   { id: 'UPcarbonizPar', name: 'УП карбонизация пар' },
   { id: 'MPA11', name: 'МПА11' },
+  { id: 'UPk10bPar', name: 'УП 10б пар' },
+
 ];
 
 const HomePage = () => {
