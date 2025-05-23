@@ -14,6 +14,10 @@ import UPcarbonizParReports from './pages/UPcarbonizPar/UPcarbonizParReports';
 import MPA11Reports from './pages/MPA11/MPA11Reports';
 import UPk10bParReports from './pages/UPk10bPar/UPk10bParReports';
 import UPk10bParPage from './pages/UPk10bPar/UPk10bPar';
+import K295aK296aK295Page from './pages/K295aK296aK295/K295aK296aK295Page';
+import K295aK296aK295Reports from './pages/K295aK296aK295/K295aK296aK295Reports';
+import K295Page from './pages/к295/K295Page';
+import K295Reports from './pages/к295/K295Reports';
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +46,14 @@ export const router = createBrowserRouter([
       // УП 10б пар
       { path: 'UPk10bPar', element: <UPk10bParPage /> },
       { path: 'UPk10bPar/hourly-report', element: <UPk10bParReports /> },
+
+      // к295а к296а к295
+      { path: 'K295aK296aK295', element: <K295aK296aK295Page /> },
+      { path: 'K295aK296aK295/hourly-report', element: <K295aK296aK295Reports /> },
+
+      // к295
+      { path: 'K295', element: <K295Page /> },
+      { path: 'K295/hourly-report', element: <K295Reports /> },
 
     ],
   },

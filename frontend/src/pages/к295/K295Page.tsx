@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import styles from './UPk10bPar.module.scss';
+import styles from './K295Page.module.scss';
 import { useSocket } from '../../hooks/useSocket';
 import { DeviceData } from '../../types/types';
 import TableHeader from '../../components/Tableheader/TableHeader';
 import Loader from '../../ui/loader/Loader';
 
-const UPk10bParPage = () => {
+const K295Page = () => {
   const { socket, connectionStatus } = useSocket({
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
@@ -18,11 +18,12 @@ const UPk10bParPage = () => {
     if (!socket) return;
 
     const handleDeviceData = (data: Record<string, DeviceData>) => {
-      const UPk10bParData = data['BB551'];
-      console.log(UPk10bParData);
+      const k295Data = data['CC168'];
 
-      if (UPk10bParData) {
-        setDeviceData(UPk10bParData);
+      console.log(k295Data);
+
+      if (k295Data) {
+        setDeviceData(k295Data);
       }
     };
 
@@ -34,8 +35,8 @@ const UPk10bParPage = () => {
   }, [socket]);
 
   return (
-    <div className={styles['UPcarbonizPar-page']}>
-      <TableHeader title="УП к10б пар" />
+    <div className={styles['k301-page']}>
+      <TableHeader title='к295' />
       <div className={styles['table-container']}>
         <h2 className={styles['table-title']}>Параметры устройства</h2>
         {connectionStatus === 'connected' && deviceData ? (
@@ -72,4 +73,4 @@ const UPk10bParPage = () => {
   );
 };
 
-export default UPk10bParPage;
+export default K295Page;
