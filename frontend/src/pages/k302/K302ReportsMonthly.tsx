@@ -1,21 +1,20 @@
 import { useState } from 'react';
-import styles from './K301ReportsMonthly.module.scss';
+import styles from './K302ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 
 import { MonthlyReportItem } from '../../types/reportTypes';
 import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
 
-const K301ReportsMonthly = () => {
+const K302ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/k301-monthly?month=${dateParam}`);
+  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/k302-monthly?month=${dateParam}`);
 
   console.log(data);
-
 
   const columns = [
     {
@@ -47,7 +46,7 @@ const K301ReportsMonthly = () => {
       <UniversalReportTable<MonthlyReportItem>
         data={data}
         columns={columns}
-        title="Параметры узла учета K301 (месячный отчет)"
+        title="Параметры узла учета K302 (месячный отчет)"
         generatedAt={new Date().toLocaleString()}
         mode="single"
         loading={loading}
@@ -60,4 +59,4 @@ const K301ReportsMonthly = () => {
   );
 };
 
-export default K301ReportsMonthly;
+export default K302ReportsMonthly;

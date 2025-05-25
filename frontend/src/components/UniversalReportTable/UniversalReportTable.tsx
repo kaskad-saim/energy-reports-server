@@ -83,7 +83,7 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
       {/* Заголовок и календарь */}
       <div className={styles['universal-report-table__header']}>
         <div className={styles['universal-report-table__header-left']}>
-          {title && <h2 className={styles['universal-report-table__title']}>{title}</h2>}
+          {title && <h2 className={`${styles['universal-report-table__title']} title-reset`}>{title}</h2>}
           {generatedAt && <p>Отчет сформирован: {generatedAt}</p>}
         </div>
         {onDateChange && (

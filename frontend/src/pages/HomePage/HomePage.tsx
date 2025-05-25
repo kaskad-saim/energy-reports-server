@@ -37,8 +37,6 @@ const HomePage = () => {
 
   return (
     <div className={styles['home-page']}>
-      <h1 className={styles['home-page__title']}>Узлы учета энергоресурсов</h1>
-
       <div className={styles['devices-container']}>
         {devices.map((device) => (
           <div key={device.id} className={styles['device-card']}>
@@ -63,6 +61,9 @@ const HomePage = () => {
       <div className={styles['home-page__actions']}>
         <Link to="/sizod-sum-hour-report" className={styles['device-card__button']}>
           СИЗОД общий суточный отчет
+        </Link>
+         <Link to="/sizod-sum-month-report" className={styles['device-card__button']}>
+          СИЗОД общий месячный отчет
         </Link>
       </div>
     </div>

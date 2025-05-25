@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import styles from './K295aK296aK295Reports.module.scss';
+import styles from './K295aK296aK295ReportsHourly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
 import { HourlyReportItem } from '../../types/reportTypes';
 
-const K295aK296aK295Reports = () => {
+const K295aK296aK295ReportsHourly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
@@ -19,9 +19,9 @@ const K295aK296aK295Reports = () => {
     {
       key: 'hour',
       label: 'Час',
-      render: (item: HourlyReportItem) => {
-        const date = new Date(item.hour);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        render: (item: HourlyReportItem) => {
+        const time = item.hour;
+        return time;
       },
     },
     { key: 'k295a_du50_flowAvg', label: 'к295а питьевая ду50', unit: 'м³/ч' },
@@ -51,4 +51,4 @@ const K295aK296aK295Reports = () => {
   );
 };
 
-export default K295aK296aK295Reports;
+export default K295aK296aK295ReportsHourly;

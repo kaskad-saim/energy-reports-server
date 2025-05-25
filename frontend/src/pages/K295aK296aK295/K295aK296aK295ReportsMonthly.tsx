@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import styles from './K301ReportsMonthly.module.scss';
+import styles from './K295aK296aK295ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 
 import { MonthlyReportItem } from '../../types/reportTypes';
 import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
 
-const K301ReportsMonthly = () => {
+const K295aK296aK295ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/k301-monthly?month=${dateParam}`);
+  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/CC125-monthly?month=${dateParam}`);
 
   console.log(data);
 
@@ -30,16 +30,14 @@ const K301ReportsMonthly = () => {
         });
       },
     },
-    { key: 'qt1Diff', label: 'QT1', unit: 'Гкал' },
-    { key: 'wt1DaySum', label: 'WT1', unit: 'Гкал/ч' },
-    { key: 'qo1DaySum', label: 'QO1', unit: 'м³/ч' },
-    { key: 'qo2DaySum', label: 'QO2', unit: 'м³/ч' },
-    { key: 't1DaySum', label: 'T1', unit: '°C' },
-    { key: 't2DaySum', label: 'T2', unit: '°C' },
-    { key: 'p1DaySum', label: 'P1', unit: 'МПа' },
-    { key: 'p2DaySum', label: 'P2', unit: 'МПа' },
-    { key: 'qm1DaySum', label: 'QM1', unit: 'т/ч' },
-    { key: 'qm2DaySum', label: 'QM2', unit: 'т/ч' },
+    { key: 'k295a_du50_flowDaySum', label: 'к295а питьевая ду50', unit: 'м³/ч' },
+    { key: 'k295a_du50_accumulatedDiff', label: 'к295а питьевая ду50', unit: 'Гкал' },
+    { key: 'k295_du32_flowDaySum', label: 'к295 питьевая ду32', unit: 'м³/ч' },
+    { key: 'k295_du32_accumulatedDiff', label: 'к295 питьевая ду32', unit: 'Гкал' },
+    { key: 'k296a_du25_flowDaySum', label: 'к296а речная ду25', unit: 'м³/ч' },
+    { key: 'k296a_du25_accumulatedDiff', label: 'к296а речная ду25', unit: 'Гкал' },
+    { key: 'k295a_du15_flowDaySum', label: 'к295а питьевая ду15', unit: 'м³/ч' },
+    { key: 'k295a_du15_accumulatedDiff', label: 'к295а питьевая ду15', unit: 'Гкал' },
   ];
 
   return (
@@ -47,7 +45,7 @@ const K301ReportsMonthly = () => {
       <UniversalReportTable<MonthlyReportItem>
         data={data}
         columns={columns}
-        title="Параметры узла учета K301 (месячный отчет)"
+        title="к295а/296а/295(вода речная, вода питьевая) (месячный отчет)"
         generatedAt={new Date().toLocaleString()}
         mode="single"
         loading={loading}
@@ -60,4 +58,4 @@ const K301ReportsMonthly = () => {
   );
 };
 
-export default K301ReportsMonthly;
+export default K295aK296aK295ReportsMonthly;

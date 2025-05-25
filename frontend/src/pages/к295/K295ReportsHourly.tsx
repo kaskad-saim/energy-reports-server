@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import styles from './UPcarbonizParReports.module.scss';
+import styles from './K295ReportsHourly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
 import { HourlyReportItem } from '../../types/reportTypes';
 
-const UPcarbonizParReports = () => {
+const K295ReportsHourly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
@@ -13,22 +13,19 @@ const UPcarbonizParReports = () => {
       ).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useHourlyReportByUrl(`/api/reports/BB690-hourly?date=${dateParam}`);
+  const { data, loading, error } = useHourlyReportByUrl(`/api/reports/CC168-hourly?date=${dateParam}`);
 
   const columns = [
     {
       key: 'hour',
       label: 'Час',
       render: (item: HourlyReportItem) => {
-        const date = new Date(item.hour);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const time = item.hour;
+        return time;
       },
     },
-    { key: 'wt1Avg', label: 'WT1', unit: 'Гкал/ч' },
-    { key: 't1Avg', label: 'T1', unit: '°C' },
-    { key: 'p1Avg', label: 'P1', unit: 'МПа' },
-    { key: 'qo1Avg', label: 'QO1', unit: 'м³/ч' },
-    { key: 'qm1Avg', label: 'QM1', unit: 'т/ч' },
+    { key: 'k295_du20_accumulatedDiff', label: 'к295 питьевая ду20', unit: 'Гкал' },
+    { key: 'k295_du50_accumulatedDiff', label: 'к295 питьевая ду50', unit: 'Гкал' },
   ];
 
   return (
@@ -36,7 +33,7 @@ const UPcarbonizParReports = () => {
       <UniversalReportTable<HourlyReportItem>
         data={data}
         columns={columns}
-        title="Параметры узла учета карбонизация пар"
+        title="к295(вода питьевая)"
         generatedAt={new Date().toLocaleString()}
         mode="single"
         loading={loading}
@@ -48,4 +45,4 @@ const UPcarbonizParReports = () => {
   );
 };
 
-export default UPcarbonizParReports;
+export default K295ReportsHourly;

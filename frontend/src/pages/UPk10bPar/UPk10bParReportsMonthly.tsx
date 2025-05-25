@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import styles from './K301ReportsMonthly.module.scss';
+import styles from './UPk10bParReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 
 import { MonthlyReportItem } from '../../types/reportTypes';
 import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
 
-const K301ReportsMonthly = () => {
+const UPk10bParReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/k301-monthly?month=${dateParam}`);
+  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/BB551-monthly?month=${dateParam}`);
 
   console.log(data);
 
@@ -30,16 +30,14 @@ const K301ReportsMonthly = () => {
         });
       },
     },
-    { key: 'qt1Diff', label: 'QT1', unit: 'Гкал' },
-    { key: 'wt1DaySum', label: 'WT1', unit: 'Гкал/ч' },
-    { key: 'qo1DaySum', label: 'QO1', unit: 'м³/ч' },
-    { key: 'qo2DaySum', label: 'QO2', unit: 'м³/ч' },
-    { key: 't1DaySum', label: 'T1', unit: '°C' },
-    { key: 't2DaySum', label: 'T2', unit: '°C' },
+   { key: 'wt1DaySum', label: 'WT1', unit: 'Гкал/ч' },
     { key: 'p1DaySum', label: 'P1', unit: 'МПа' },
-    { key: 'p2DaySum', label: 'P2', unit: 'МПа' },
+    { key: 'qo1DaySum', label: 'QO1', unit: 'м³/ч' },
     { key: 'qm1DaySum', label: 'QM1', unit: 'т/ч' },
-    { key: 'qm2DaySum', label: 'QM2', unit: 'т/ч' },
+    { key: 'wtAccumulatedDiff', label: 'вода техническая накопл. К10б', unit: 'Гкал' },
+    { key: 'wpAccumulatedDiff', label: 'вода питьевая накопл. К9а', unit: 'Гкал' },
+    { key: 'wtFlowDaySum', label: 'вода техническая м3/ч К10б', unit: 'м³/ч' },
+    { key: 'wpFlowDaySum', label: '// вода питьевая м3/ч К9а', unit: 'м³/ч' },
   ];
 
   return (
@@ -47,7 +45,7 @@ const K301ReportsMonthly = () => {
       <UniversalReportTable<MonthlyReportItem>
         data={data}
         columns={columns}
-        title="Параметры узла учета K301 (месячный отчет)"
+        title="Параметры узла УП 10б пар (месячный отчет)"
         generatedAt={new Date().toLocaleString()}
         mode="single"
         loading={loading}
@@ -60,4 +58,4 @@ const K301ReportsMonthly = () => {
   );
 };
 
-export default K301ReportsMonthly;
+export default UPk10bParReportsMonthly;

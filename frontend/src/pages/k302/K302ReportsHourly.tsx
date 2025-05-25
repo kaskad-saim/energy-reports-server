@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import styles from './K295Reports.module.scss';
+import styles from './K302ReportsHourly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
 import { HourlyReportItem } from '../../types/reportTypes';
+import Loader from '../../ui/loader/Loader';
+import { useState } from 'react';
 
-const K295Reports = () => {
+const K302ReportsHourly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
@@ -13,20 +14,31 @@ const K295Reports = () => {
       ).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useHourlyReportByUrl(`/api/reports/CC168-hourly?date=${dateParam}`);
+  const { data, loading, error } = useHourlyReportByUrl(`/api/reports/k302-hourly?date=${dateParam}`);
+
+
+  if (loading) return <Loader />;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   const columns = [
     {
       key: 'hour',
       label: 'Час',
       render: (item: HourlyReportItem) => {
-        const date = new Date(item.hour);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const time = item.hour;
+        return time;
       },
     },
-    { key: 'k295_du20_accumulatedDiff', label: 'к295 питьевая ду20', unit: 'Гкал' },
-    { key: 'k295_du50_accumulatedDiff', label: 'к295 питьевая ду50', unit: 'Гкал' },
-
+    { key: 'qt1Diff', label: 'QT1 (Гкал)' },
+    { key: 'wt1Avg', label: 'WT1 (Гкал/ч)' },
+    { key: 'qo1Avg', label: 'QO1 (м³/ч)' },
+    { key: 'qo2Avg', label: 'QO2 (м³/ч)' },
+    { key: 't1Avg', label: 'T1 (°C)' },
+    { key: 't2Avg', label: 'T2 (°C)' },
+    { key: 'p1Avg', label: 'P1 (МПа)' },
+    { key: 'p2Avg', label: 'P2 (МПа)' },
+    { key: 'qm1Avg', label: 'QM1 (т/ч)' },
+    { key: 'qm2Avg', label: 'QM2 (т/ч)' },
   ];
 
   return (
@@ -34,7 +46,7 @@ const K295Reports = () => {
       <UniversalReportTable<HourlyReportItem>
         data={data}
         columns={columns}
-        title="к295(вода питьевая)"
+        title="Параметры узла учета K302"
         generatedAt={new Date().toLocaleString()}
         mode="single"
         loading={loading}
@@ -46,4 +58,4 @@ const K295Reports = () => {
   );
 };
 
-export default K295Reports;
+export default K302ReportsHourly;

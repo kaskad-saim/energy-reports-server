@@ -1,11 +1,11 @@
 // src/pages/SizodSumHourReport/SizodSumHourReport.tsx
 import { useState } from 'react';
 import styles from '../../components/UniversalReportTable/UniversalReportTable.module.scss';
-import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
-import { HourlyReportItem } from '../../types/reportTypes';
+import { MonthlyReportItem } from '../../types/reportTypes';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
+import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
 
-const SizodSumHourReport = () => {
+const SizodSumMonthReport = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
@@ -18,12 +18,12 @@ const SizodSumHourReport = () => {
     data: k301Data,
     loading: k301Loading,
     error: k301Error,
-  } = useHourlyReportByUrl(`/api/reports/k301-hourly?date=${dateParam}`);
+  } = useMonthlyReportByUrl(`/api/reports/k301-monthly?month=${dateParam}`);
   const {
     data: k302Data,
     loading: k302Loading,
     error: k302Error,
-  } = useHourlyReportByUrl(`/api/reports/k302-hourly?date=${dateParam}`);
+  } = useMonthlyReportByUrl(`/api/reports/k302-monthly?month=${dateParam}`);
 
   const loading = k301Loading || k302Loading;
   const error = k301Error || k302Error;
@@ -33,20 +33,27 @@ const SizodSumHourReport = () => {
     k302: k302Data,
   };
 
+  console.log(multiData.k301);
+
+
   const columns = [
     {
-      key: 'hour',
-      label: 'Время',
-      render: (item: HourlyReportItem) => {
-        const time = item.hour;
-        return time;
+      key: 'daу',
+      label: 'Дата',
+      render: (item: MonthlyReportItem) => {
+        const date = new Date(item.day);
+        return date.toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
       },
     },
     { key: 'qt1Diff', label: 'QT1', unit: 'Гкал' },
   ];
 
   const multiConfig = {
-    timeColumn: 'hour',
+    timeColumn: 'day',
     devices: [
       {
         id: 'k301',
@@ -65,10 +72,10 @@ const SizodSumHourReport = () => {
 
   return (
     <div className={styles['report-container']}>
-      <UniversalReportTable<HourlyReportItem>
+      <UniversalReportTable<MonthlyReportItem>
         multiData={multiData}
         columns={columns}
-        title="Сравнение параметра QT1 (Гкал)"
+        title="Сравнение параметра QT1 (Гкал) (месячный отчет)"
         generatedAt={new Date().toLocaleString()}
         mode="multi-device"
         multiConfig={multiConfig}
@@ -81,4 +88,4 @@ const SizodSumHourReport = () => {
   );
 };
 
-export default SizodSumHourReport;
+export default SizodSumMonthReport;
