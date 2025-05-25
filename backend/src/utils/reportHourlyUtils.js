@@ -1,9 +1,6 @@
 import moment from 'moment';
 
-export const generateHourlyReport = async (model, {
-  averageFields = [],
-  deltaFields = []
-}, selectedDate = null) => {
+export const generateHourlyReport = async (model, { averageFields = [], deltaFields = [] }, selectedDate = null) => {
   let today;
 
   if (selectedDate) {
@@ -19,78 +16,87 @@ export const generateHourlyReport = async (model, {
   const endOfDay = new Date(today);
   endOfDay.setHours(23, 59, 59, 999);
 
+  // Получаем данные из БД
   const records = await model
     .find({
-      timestamp: {
-        $gte: startOfDay,
-        $lt: endOfDay,
-      },
+      timestamp: { $gte: startOfDay, $lt: endOfDay },
     })
     .sort({ timestamp: 1 });
 
   const hourlyData = {};
 
-  for (const record of records) {
-    const momentTime = moment(record.timestamp);
-    const hourKey = momentTime.clone().add(1, 'hour').format('YYYY-MM-DD HH:00');
+  // Инициализируем часы
+  for (let h = 1; h <= 24; h++) {
+    const hourStart = moment(today)
+      .startOf('day')
+      .add(h - 1, 'hours')
+      .toDate();
+    const hourLabel = moment(hourStart).add(1, 'hour').format('HH:00');
 
-    if (!hourlyData[hourKey]) {
-      hourlyData[hourKey] = {
-        count: 0,
-        deltaValues: {},
-        avgSums: {}
-      };
+    hourlyData[hourLabel] = {
+      values: {},
+      deltaValues: {},
+    };
 
-      // Инициализируем поля
-      deltaFields.forEach(field => {
-        hourlyData[hourKey].deltaValues[field] = {
-          start: null,
-          end: null
-        };
-      });
-
-      averageFields.forEach(field => {
-        hourlyData[hourKey].avgSums[field] = 0;
-      });
-    }
-
-    const data = record.data;
-    hourlyData[hourKey].count += 1;
-
-    // Обработка delta-полей
-    deltaFields.forEach(field => {
-      const value = data[field];
-      if (value !== undefined && value !== null) {
-        if (hourlyData[hourKey].deltaValues[field].start === null) {
-          hourlyData[hourKey].deltaValues[field].start = value;
-        }
-        hourlyData[hourKey].deltaValues[field].end = value;
-      }
+    // Инициализируем поля
+    deltaFields.forEach((field) => {
+      hourlyData[hourLabel].deltaValues[field] = { start: null, end: null };
     });
 
-    // Обработка avg-полей
-    averageFields.forEach(field => {
-      const value = data[field] || 0;
-      hourlyData[hourKey].avgSums[field] += value;
+    averageFields.forEach((field) => {
+      hourlyData[hourLabel].values[field] = [];
     });
   }
 
-  // Формируем результат
-  const result = Object.entries(hourlyData).map(([hour, values]) => {
-    const report = {
-      hour
-    };
+  // Обрабатываем записи
+  for (const record of records) {
+    const ts = moment(record.timestamp);
+    const hourStart = ts.clone().startOf('hour');
+    const hourLabel = hourStart.add(1, 'hour').format('HH:00');
 
-    // Вычисляем дельты
-    deltaFields.forEach(field => {
-      const { start, end } = values.deltaValues[field];
-      const diff = start !== null && end !== null ? Number((end - start).toFixed(2)) : 0;
+    if (!hourlyData[hourLabel]) continue;
+
+    const data = record.data || {};
+
+    // Дельта
+    deltaFields.forEach((field) => {
+      const value = data[field];
+
+      if (typeof value === 'number' && !isNaN(value)) {
+        if (hourlyData[hourLabel].deltaValues[field].start === null) {
+          hourlyData[hourLabel].deltaValues[field].start = value;
+        }
+        hourlyData[hourLabel].deltaValues[field].end = value;
+      }
+    });
+
+    // Средние
+    averageFields.forEach((field) => {
+      const value = data[field];
+      if (typeof value === 'number' && !isNaN(value)) {
+        hourlyData[hourLabel].values[field].push(value);
+      }
+    });
+  }
+
+  // Формируем финальный отчёт
+  const result = Object.entries(hourlyData).map(([hourLabel, data]) => {
+    const report = { hour: hourLabel };
+
+    // Дельты
+    deltaFields.forEach((field) => {
+      const { start, end } = data.deltaValues[field];
+      const isValidStart = typeof start === 'number' && !isNaN(start);
+      const isValidEnd = typeof end === 'number' && !isNaN(end);
+
+      const diff = isValidStart && isValidEnd ? Number((end - start).toFixed(2)) : 0;
       report[`${field}Diff`] = diff;
     });
 
-    // Вычисляем средние
-    averageFields.forEach(field => {
-      const avg = values.count > 0 ? Number((values.avgSums[field] / values.count).toFixed(2)) : 0;
+    // Средние значения
+    averageFields.forEach((field) => {
+      const values = data.values[field] || [];
+      const avg = values.length > 0 ? Number((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2)) : 0;
       report[`${field}Avg`] = avg;
     });
 

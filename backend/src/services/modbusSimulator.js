@@ -50,19 +50,30 @@ export class ModbusSimulator {
     }
 
     // Находим имя регистра по адресу
-    const registerName = Object.keys(config.registers).find(
-      reg => config.registers[reg] === address
-    );
+    const registerName = Object.keys(config.registers).find((reg) => config.registers[reg] === address);
 
     if (!registerName) {
       throw new Error(`Регистр с адресом 0x${address.toString(16)} не найден`);
     }
 
-    // Генерируем небольшое изменение значения
-    const currentValue = parseFloat(this.deviceValues[deviceName][registerName]);
-    const change = (Math.random() - 0.5) * 0.1 * currentValue;
-    const newValue = Math.max(0, currentValue + change);
+    // Получаем текущее значение
+    let currentValue = parseFloat(this.deviceValues[deviceName][registerName]);
 
+    // Защита от NaN
+    if (isNaN(currentValue)) {
+      currentValue = 0; // или любое другое начальное значение
+    }
+
+    // Генерируем небольшое изменение значения
+    const change = (Math.random() - 0.5) * 0.1 * currentValue;
+
+    // Вычисляем новое значение, не позволяя ему уйти в минус
+    let newValue = currentValue + change;
+
+    // Ограничиваем минимальное значение 0
+    newValue = Math.max(0, newValue);
+
+    // Сохраняем значение
     this.deviceValues[deviceName][registerName] = newValue.toFixed(2);
 
     return parseFloat(this.deviceValues[deviceName][registerName]);

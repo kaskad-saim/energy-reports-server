@@ -10,6 +10,7 @@ import reportRoutes from './routes/reportRoutes.js';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { scheduleMonthlyReports } from './services/monthlyReportScheduler.js';
 
 // Загружаем переменные окружения
 dotenv.config();
@@ -42,6 +43,9 @@ connectDB();
 const server = createServer(app);
 const io = new Server(server);
 initSocket(io);
+
+
+scheduleMonthlyReports(); // запускаем фоновую генерацию отчетов
 
 // маршруты
 app.use('/api/reports', reportRoutes);
