@@ -32,6 +32,7 @@ interface UniversalReportTableProps<T> {
   error?: string | null;
   selectedDate?: Date | null;
   onDateChange?: (date: Date | null) => void;
+  reportType?: 'daily' | 'monthly';
 }
 
 const UniversalReportTable = <T extends Record<string, number | string | null | undefined>>({
@@ -46,6 +47,7 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
   error = null,
   selectedDate,
   onDateChange,
+  reportType
 }: UniversalReportTableProps<T>) => {
   // Функция подсчёта итогов
   const totals = React.useMemo(() => {
@@ -87,7 +89,7 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
         {onDateChange && (
           <div className={styles['universal-report-table__header-right']}>
             <span>Выберите период</span>
-            <StyledDatePicker selected={selectedDate} onChange={onDateChange} placeholderText="Выберите дату" />
+            <StyledDatePicker selected={selectedDate} onChange={onDateChange} placeholderText="Выберите дату" mode={reportType} />
           </div>
         )}
       </div>

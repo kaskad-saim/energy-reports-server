@@ -4,7 +4,6 @@ import App from './App';
 import HomePage from './pages/HomePage/HomePage';
 import K301Page from './pages/K301/K301Page';
 import K301Charts from './pages/K301/K301Charts';
-import K301Reports from './pages/K301/K301Reports';
 import K302Page from './pages/k302/K302Page';
 import UPcarbonizParPage from './pages/UPcarbonizPar/UPcarbonizPar';
 import MPA11Page from './pages/MPA11/MPA11';
@@ -18,6 +17,8 @@ import K295aK296aK295Page from './pages/K295aK296aK295/K295aK296aK295Page';
 import K295aK296aK295Reports from './pages/K295aK296aK295/K295aK296aK295Reports';
 import K295Page from './pages/к295/K295Page';
 import K295Reports from './pages/к295/K295Reports';
+import K301ReportsHourly from './pages/K301/K301ReportsHourly';
+import K301ReportsMonthly from './pages/K301/K301ReportsMonthly';
 
 export const router = createBrowserRouter([
   {
@@ -28,7 +29,9 @@ export const router = createBrowserRouter([
       // K301
       { path: 'k301', element: <K301Page /> },
       { path: 'k301/charts', element: <K301Charts /> },
-      { path: 'k301/hourly-report', element: <K301Reports /> },
+      { path: 'k301/hourly-report', element: <K301ReportsHourly /> },
+      { path: 'k301/monthly-report', element: <K301ReportsMonthly /> },
+
       // K302
       { path: 'k302', element: <K302Page /> },
       { path: 'k302/hourly-report', element: <K302Reports /> },

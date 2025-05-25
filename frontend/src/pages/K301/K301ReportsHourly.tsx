@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import styles from './K301Reports.module.scss';
+import styles from './K301ReportsHourly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { useHourlyReportByUrl } from '../../hooks/useHourlyReport';
 import { HourlyReportItem } from '../../types/reportTypes';
 
-const K301Reports = () => {
+const K301ReportsHourly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
@@ -20,8 +20,8 @@ const K301Reports = () => {
       key: 'hour',
       label: 'Час',
       render: (item: HourlyReportItem) => {
-        const date = new Date(item.hour);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const time = item.hour;
+        return time;
       },
     },
     { key: 'qt1Diff', label: 'QT1', unit: 'Гкал' },
@@ -48,9 +48,10 @@ const K301Reports = () => {
         error={error}
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
+        reportType="daily"
       />
     </div>
   );
 };
 
-export default K301Reports;
+export default K301ReportsHourly;

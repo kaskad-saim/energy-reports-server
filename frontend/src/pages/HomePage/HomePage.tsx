@@ -53,6 +53,9 @@ const HomePage = () => {
               <Link to={`/${device.id}/hourly-report`} className={styles['device-card__button']}>
                 Суточный отчет
               </Link>
+                <Link to={`/${device.id}/monthly-report`} className={styles['device-card__button']}>
+                Месячный отчет
+              </Link>
             </div>
           </div>
         ))}

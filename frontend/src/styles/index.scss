@@ -71,3 +71,8 @@ body::-webkit-scrollbar-thumb {
 .react-datepicker__day--selected {
   background-color: green !important;
 }
+
+.react-datepicker__month .react-datepicker__month-text {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
