@@ -57,24 +57,25 @@ export const calculateTotals = <T extends Record<string, number | string | null 
     multiConfig.devices.forEach((device) => {
       const keyStr = device.param as string;
 
-      const allValuesAreNumeric = Object.values(multiData)
-        .flat()
-        .every((row) => {
-          if (!row) return true;
-          const rawValue = row[keyStr];
-          const value = typeof rawValue === 'number' ? rawValue : Number(rawValue);
-          return !isNaN(value);
-        });
+      // Берём только данные текущего устройства
+      const deviceData = multiData[device.id] || [];
+
+      const allValuesAreNumeric = deviceData.every((row) => {
+        if (!row) return true;
+        const rawValue = row[keyStr];
+        const value = typeof rawValue === 'number' ? rawValue : Number(rawValue);
+        return !isNaN(value);
+      });
 
       if (allValuesAreNumeric) {
-        const total = Object.values(multiData).flat().reduce((sum, row) => {
+        const total = deviceData.reduce((sum, row) => {
           if (!row) return sum;
           const rawValue = row[keyStr];
           const value = typeof rawValue === 'number' ? rawValue : Number(rawValue);
           return sum + (isNaN(value) ? 0 : value);
         }, 0);
 
-        totals[`${device.id}-${keyStr}`] = total;
+        totals[`${device.id}-${keyStr}`] = parseFloat(total.toFixed(2));
       }
     });
   }
