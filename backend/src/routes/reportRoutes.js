@@ -14,6 +14,7 @@ import { getMonthlyBB690Report } from '../reports/BB690MonthlyReport.js';
 import { getMonthlyBB93Report } from '../reports/BB93MonthlyReport.js';
 import { getMonthlyBB551Report } from '../reports/BB551MonthlyReport.js';
 import { getMonthlyCC125Report } from '../reports/CC125MonthlyReport.js';
+import correctionModel from '../models/correctionModel.js';
 
 const router = express.Router();
 
@@ -70,19 +71,97 @@ router.get('/:device-monthly', async (req, res) => {
   }
 
   try {
-    const cached = await monthlyReportModel.findOne({ device, month }).sort({ updatedAt: -1 }).limit(1);
+    // Сначала пробуем получить кэшированный отчет
+    let cached = await monthlyReportModel.findOne({ device, month }).sort({ updatedAt: -1 }).limit(1);
 
+    let reportData;
     if (cached) {
-      return res.json(cached.reportData);
+      reportData = [...cached.reportData]; // копируем данные
+    } else {
+      // Если кэша нет, генерируем вручную
+      reportData = await handler(month);
     }
 
-    // Если кэша нет, генерируем вручную
-    const report = await handler(month);
-    return res.json(report);
+    // Загружаем коррекции
+    const correctionsDoc = await correctionModel.findOne({ device, month });
+    const corrections = correctionsDoc?.corrections || {};
+
+    // Применяем коррекции к данным
+    const correctedData = reportData.map((entry) => {
+      const day = entry.day;
+      Object.keys(corrections).forEach((key) => {
+        const correction = corrections[key];
+        if (correction.day === day) {
+          entry[correction.field] = correction.correctedValue;
+        }
+      });
+      return entry;
+    });
+
+    // Если не было кэша — можно сохранить сгенерированный отчет с коррекциями
+    if (!cached) {
+      await monthlyReportModel.create({
+        device,
+        month,
+        reportData,
+        createdAt: new Date(),
+      });
+    }
+
+    return res.json(correctedData); // отправляем откорректированные данные
   } catch (error) {
     console.error(`Ошибка при получении месячного отчета для ${device}:`, error);
     return res.status(500).json({ error: `Ошибка сервера при получении отчета для ${device}` });
   }
 });
 
+// Получение коррекций для месяца и устройства
+router.get('/:device-corrections', async (req, res) => {
+  const { device } = req.params;
+  const { month } = req.query;
+
+  try {
+    const corrections = await correctionModel.findOne({ device, month });
+    res.json(corrections || {});
+  } catch (error) {
+    console.error('Ошибка при получении коррекций:', error);
+    res.status(500).json({ error: 'Не удалось загрузить коррекции' });
+  }
+});
+
+// Сохранение коррекции
+router.post('/save-corrections-batch', async (req, res) => {
+  const { device, month, corrections } = req.body;
+
+  if (!device || !month || !corrections || typeof corrections !== 'object') {
+    return res.status(400).json({ error: 'Неверные данные для сохранения' });
+  }
+
+  try {
+    // Формируем обновляемый объект
+    const updateObject = {};
+    for (const key in corrections) {
+      updateObject[`corrections.${key}`] = corrections[key];
+    }
+
+    // Обновляем или создаём запись с коррекциями
+    const result = await correctionModel.findOneAndUpdate(
+      { device, month },
+      {
+        $set: {
+          ...updateObject,
+          updatedAt: new Date(),
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log('✅ Коррекции сохранены:', result);
+
+    return res.json({ success: true, result });
+  } catch (error) {
+    console.error('❌ Ошибка при массовом сохранении коррекций:', error);
+    return res.status(500).json({ error: 'Не удалось сохранить коррекции' });
+  }
+});
 export default router;

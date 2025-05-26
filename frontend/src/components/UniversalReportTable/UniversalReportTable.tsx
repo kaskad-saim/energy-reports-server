@@ -1,9 +1,11 @@
+// components/UniversalReportTable/UniversalReportTable.tsx
 import React from 'react';
 import styles from './UniversalReportTable.module.scss';
 import Loader from '../../ui/loader/Loader';
 import 'react-datepicker/dist/react-datepicker.css';
 import StyledDatePicker from '../../ui/StyledDatePicker/StyledDatePicker';
 import { calculateTotals } from '../../utils/calculateTotals';
+import { CorrectionsMap } from '../../types/reportTypes';
 
 export interface ColumnConfig<T> {
   key: keyof T | string;
@@ -33,6 +35,9 @@ interface UniversalReportTableProps<T> {
   selectedDate?: Date | null;
   onDateChange?: (date: Date | null) => void;
   reportType?: 'daily' | 'monthly';
+  isEditable?: boolean;
+  onCorrectValue?: (day: string, field: string, newValue: number) => void;
+  corrections?: CorrectionsMap;
 }
 
 const UniversalReportTable = <T extends Record<string, number | string | null | undefined>>({
@@ -47,9 +52,11 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
   error = null,
   selectedDate,
   onDateChange,
-  reportType
+  reportType = 'daily',
+  isEditable = false,
+  onCorrectValue,
+  corrections = {},
 }: UniversalReportTableProps<T>) => {
-  // Функция подсчёта итогов
   const totals = React.useMemo(() => {
     return calculateTotals<T>({
       mode,
@@ -78,6 +85,19 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
 
   const hasTotals = Object.keys(totals).length > 0;
 
+  const handleCellChange = (row: T, colKey: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const day = row['day'];
+    if (typeof day !== 'string' || !day.startsWith('20')) {
+      console.warn('Неверный формат даты в строке', row);
+      return;
+    }
+
+    const newValue = parseFloat(e.target.value);
+    if (!isNaN(newValue) && onCorrectValue) {
+      onCorrectValue(day, colKey, newValue);
+    }
+  };
+
   return (
     <div className={`${styles['universal-report-table']} ${styles['universal-report-table--with-calendar']}`}>
       {/* Заголовок и календарь */}
@@ -89,7 +109,12 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
         {onDateChange && (
           <div className={styles['universal-report-table__header-right']}>
             <span>Выберите период</span>
-            <StyledDatePicker selected={selectedDate} onChange={onDateChange} placeholderText="Выберите дату" mode={reportType} />
+            <StyledDatePicker
+              selected={selectedDate}
+              onChange={onDateChange}
+              placeholderText="Выберите дату"
+              mode={reportType}
+            />
           </div>
         )}
       </div>
@@ -205,7 +230,31 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
                     {columns.map((col) => {
                       const keyStr = col.key as string;
                       const value = row[keyStr];
-                      return <td key={String(col.key)}>{col.render ? col.render(row) : formatValue(value)}</td>;
+                      const isCorrected = corrections[`${row.day}-${keyStr}`];
+                      const isNumber = typeof value === 'number';
+                      const isEditableCell = isEditable && reportType === 'monthly' && isNumber;
+
+                      return (
+                        <td
+                          key={String(col.key)}
+                          style={{
+                            backgroundColor: isCorrected ? '#fff3cd' : 'inherit',
+                            fontWeight: isCorrected ? 'bold' : 'normal',
+                          }}
+                        >
+                          {isEditableCell ? (
+                            <input
+                              type="number"
+                              step="0.01"
+                              defaultValue={value}
+                              onBlur={handleCellChange(row, keyStr)}
+                              className={styles['editable-cell-input']}
+                            />
+                          ) : (
+                            col.render ? col.render(row) : formatValue(value)
+                          )}
+                        </td>
+                      );
                     })}
                   </tr>
                 ))

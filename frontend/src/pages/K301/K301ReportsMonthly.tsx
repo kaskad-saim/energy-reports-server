@@ -1,21 +1,30 @@
+// pages/K301ReportsMonthly.tsx
+
 import { useState } from 'react';
 import styles from './K301ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
-
 import { MonthlyReportItem } from '../../types/reportTypes';
-import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
+import { useMonthlyReport } from '../../hooks/useMonthlyReport';
+import BtnDefault from '../../ui/BtnDefault/BtnDefault';
 
 const K301ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-
-  const dateParam = selectedDate
+  const monthParam = selectedDate
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
+  const device = 'k301';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/k301-monthly?month=${dateParam}`);
-
-  console.log(data);
-
+  // Используем обновлённый хук
+  const {
+    data,
+    corrections,
+    loading,
+    error,
+    pendingCorrections,
+    updatePendingCorrection,
+    saveAllCorrections,
+    hasPending,
+  } = useMonthlyReport(device, monthParam);
 
   const columns = [
     {
@@ -42,6 +51,15 @@ const K301ReportsMonthly = () => {
     { key: 'qm2DaySum', label: 'QM2', unit: 'т/ч' },
   ];
 
+  const handleCorrectValue = (day: string, field: string, newValue: number) => {
+    const originalEntry = data.find((item) => item.day === day);
+    const originalValue = originalEntry?.[field as keyof typeof originalEntry];
+
+    if (typeof originalValue === 'number') {
+      updatePendingCorrection(day, field, originalValue, newValue);
+    }
+  };
+
   return (
     <div className={styles['reports-page']}>
       <UniversalReportTable<MonthlyReportItem>
@@ -55,7 +73,23 @@ const K301ReportsMonthly = () => {
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
         reportType="monthly"
+        isEditable={true}
+        onCorrectValue={handleCorrectValue}
+        corrections={{
+          ...corrections,
+          ...pendingCorrections,
+        }}
       />
+
+      {/* Кнопка сохранить коррекции */}
+      {hasPending && (
+        <BtnDefault
+          className={styles['save-corrections-button']}
+          onClick={saveAllCorrections}
+        >
+          Сохранить коррекции
+        </BtnDefault>
+      )}
     </div>
   );
 };
