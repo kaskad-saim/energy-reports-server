@@ -26,7 +26,11 @@ export const useMonthlyReport = (device: string, month: string) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Загрузка данных отчёта и коррекций
+  // Очищаем данные при смене месяца
+  useEffect(() => {
+    setData([]);
+  }, [month]);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -50,12 +54,7 @@ export const useMonthlyReport = (device: string, month: string) => {
   }, [device, month]);
 
   // Добавление в список локальных коррекций
-  const updatePendingCorrection = (
-    day: string,
-    field: string,
-    originalValue: number,
-    correctedValue: number
-  ) => {
+  const updatePendingCorrection = (day: string, field: string, originalValue: number, correctedValue: number) => {
     const key = `${day}-${field}`;
     setPendingCorrections((prev) => ({
       ...prev,

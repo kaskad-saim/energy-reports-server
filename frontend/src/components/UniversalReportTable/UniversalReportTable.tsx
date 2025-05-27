@@ -1,5 +1,5 @@
 // components/UniversalReportTable/UniversalReportTable.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './UniversalReportTable.module.scss';
 import Loader from '../../ui/loader/Loader';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -7,6 +7,7 @@ import StyledDatePicker from '../../ui/StyledDatePicker/StyledDatePicker';
 import { calculateTotals } from '../../utils/calculateTotals';
 import { CorrectionsMap } from '../../types/reportTypes';
 import BtnDefault from '../../ui/BtnDefault/BtnDefault';
+import PasswordModal from '../PasswordModal/PasswordModal';
 
 export interface ColumnConfig<T> {
   key: keyof T | string;
@@ -62,6 +63,8 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
   hasPendingCorrections = false,
   onSaveCorrections,
 }: UniversalReportTableProps<T>) => {
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
   const totals = React.useMemo(() => {
     return calculateTotals<T>({
       mode,
@@ -71,6 +74,15 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
       multiConfig,
     });
   }, [mode, data, multiData, columns, multiConfig]);
+
+  const handleSaveClick = () => {
+    setIsPasswordModalOpen(true);
+  };
+
+  const handleConfirm = () => {
+    onSaveCorrections?.();
+    setIsPasswordModalOpen(false);
+  };
 
   if (loading) return <Loader />;
   if (error) return <p className={styles['universal-report-table__error']}>{error}</p>;
@@ -98,8 +110,8 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
     }
 
     const newValue = parseFloat(e.target.value);
-    if (!isNaN(newValue) && onCorrectValue) {
-      onCorrectValue(day, colKey, newValue);
+    if (!isNaN(newValue)) {
+      onCorrectValue?.(day, colKey, newValue);
     }
   };
 
@@ -197,9 +209,7 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
               {/* Строка Итого */}
               {hasTotals && (
                 <tr className={styles['universal-report-table__total-row']}>
-                  <td className={styles['universal-report-table__total-label']} style={{ textAlign: 'left' }}>
-                    Итого
-                  </td>
+                  <td className={`${styles['universal-report-table__total-label']}`}>Итого</td>
                   {multiConfig.devices.map((device) => {
                     const keyStr = device.param as string;
                     const totalValue = totals[`${device.id}-${keyStr}`];
@@ -276,9 +286,7 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
               {/* Строка Итого */}
               {hasTotals && (
                 <tr className={styles['universal-report-table__total-row']}>
-                  <td className={styles['universal-report-table__total-label']} style={{ textAlign: 'left' }}>
-                    Итого
-                  </td>
+                  <td className={styles['universal-report-table__total-label']}>Итого</td>
                   {columns.slice(1).map((col) => {
                     const keyStr = col.key as string;
                     const totalValue = totals[keyStr];
@@ -298,11 +306,18 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
       {/* Кнопка сохранить коррекции */}
       {onSaveCorrections && (
         <div className={styles['universal-report-table__save-button-container']}>
-          <BtnDefault onClick={onSaveCorrections} disabled={!hasPendingCorrections}>
+          <BtnDefault onClick={handleSaveClick} disabled={!hasPendingCorrections}>
             Сохранить коррекции
           </BtnDefault>
         </div>
       )}
+
+      {/* Модальное окно для ввода пароля */}
+      <PasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        onConfirm={handleConfirm}
+      />
     </div>
   );
 };

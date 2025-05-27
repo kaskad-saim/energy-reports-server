@@ -49,7 +49,7 @@
 
   th,
   td {
-    padding: 6px 16px;
+    padding: 5px;
     text-align: left;
     border: 1px solid #c8e6c9;
     vertical-align: middle;
@@ -104,12 +104,16 @@
   }
 
   &__total-row {
-    background-color: #e0f2f1 !important;
+    background-color: yellow !important;
     font-weight: bold;
+    td:first-child {
+      background-color: green;
+      color: white;
+    }
   }
 
   &__total-label {
-    text-align: right;
+    text-align: center !important;
   }
 
   &__save-button-container {
@@ -126,13 +130,29 @@
 
 
 .editable-cell-input {
+  text-align: center;
   width: 100%;
-  padding: 6px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
   box-sizing: border-box;
+
+  /* Убираем спиннер в WebKit-браузерах (Chrome, Safari) */
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Убираем спиннер в Firefox */
+  &[type='number'] {
+    appearance: textfield;
+  }
+
+  &:focus {
+    outline: none; /* убираем стандартный outline */
+    border-color: #4caf50; /* зеленая граница */
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* мягкая зеленая тень вокруг инпута */
+    transition: all 0.2s ease-in-out;
+  }
 }
-
-
-

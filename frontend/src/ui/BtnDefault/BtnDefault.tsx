@@ -4,7 +4,7 @@ import styles from './btnDefault.module.scss';
 interface BtnDefaultProps {
   children?: React.ReactNode;
   isActive?: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   icon?: React.ReactNode;
   borderRadius?: string;
   disabled?: boolean;

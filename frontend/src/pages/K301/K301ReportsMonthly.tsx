@@ -1,6 +1,4 @@
-// pages/K301ReportsMonthly.tsx
-
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './K301ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { MonthlyReportItem } from '../../types/reportTypes';
@@ -8,12 +6,14 @@ import { useMonthlyReport } from '../../hooks/useMonthlyReport';
 
 const K301ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const monthParam = selectedDate
-    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
-    : '';
+  const monthParam = useMemo(() => {
+    return selectedDate
+      ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
+      : '';
+  }, [selectedDate]);
+
   const device = 'k301';
 
-  // Используем обновлённый хук
   const {
     data,
     corrections,
@@ -25,7 +25,7 @@ const K301ReportsMonthly = () => {
     hasPending,
   } = useMonthlyReport(device, monthParam);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       key: 'day',
       label: 'Дата',
@@ -48,21 +48,24 @@ const K301ReportsMonthly = () => {
     { key: 'p2DaySum', label: 'P2', unit: 'МПа' },
     { key: 'qm1DaySum', label: 'QM1', unit: 'т/ч' },
     { key: 'qm2DaySum', label: 'QM2', unit: 'т/ч' },
-  ];
+  ], []);
 
   const handleCorrectValue = (day: string, field: string, newValue: number) => {
     const originalEntry = data.find((item) => item.day === day);
     const originalValue = originalEntry?.[field as keyof typeof originalEntry];
-
     if (typeof originalValue === 'number') {
       updatePendingCorrection(day, field, originalValue, newValue);
     }
   };
 
+  // Гарантируем, что мы передаем свежие данные
+  const memoizedData = useMemo(() => data, [data]);
+
   return (
     <div className={styles['reports-page']}>
       <UniversalReportTable<MonthlyReportItem>
-        data={data}
+        key={monthParam}
+        data={memoizedData}
         columns={columns}
         title="Параметры узла учета K301 (месячный отчет)"
         generatedAt={new Date().toLocaleString()}
