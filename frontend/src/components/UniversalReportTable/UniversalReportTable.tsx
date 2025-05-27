@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import StyledDatePicker from '../../ui/StyledDatePicker/StyledDatePicker';
 import { calculateTotals } from '../../utils/calculateTotals';
 import { CorrectionsMap } from '../../types/reportTypes';
+import BtnDefault from '../../ui/BtnDefault/BtnDefault';
 
 export interface ColumnConfig<T> {
   key: keyof T | string;
@@ -38,6 +39,8 @@ interface UniversalReportTableProps<T> {
   isEditable?: boolean;
   onCorrectValue?: (day: string, field: string, newValue: number) => void;
   corrections?: CorrectionsMap;
+  hasPendingCorrections?: boolean;
+  onSaveCorrections?: () => void;
 }
 
 const UniversalReportTable = <T extends Record<string, number | string | null | undefined>>({
@@ -56,6 +59,8 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
   isEditable = false,
   onCorrectValue,
   corrections = {},
+  hasPendingCorrections = false,
+  onSaveCorrections,
 }: UniversalReportTableProps<T>) => {
   const totals = React.useMemo(() => {
     return calculateTotals<T>({
@@ -250,8 +255,10 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
                               onBlur={handleCellChange(row, keyStr)}
                               className={styles['editable-cell-input']}
                             />
+                          ) : col.render ? (
+                            col.render(row)
                           ) : (
-                            col.render ? col.render(row) : formatValue(value)
+                            formatValue(value)
                           )}
                         </td>
                       );
@@ -287,6 +294,15 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
           </table>
         )}
       </div>
+
+      {/* Кнопка сохранить коррекции */}
+      {onSaveCorrections && (
+        <div className={styles['universal-report-table__save-button-container']}>
+          <BtnDefault onClick={onSaveCorrections} disabled={!hasPendingCorrections}>
+            Сохранить коррекции
+          </BtnDefault>
+        </div>
+      )}
     </div>
   );
 };

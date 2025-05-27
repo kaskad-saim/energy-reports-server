@@ -5,7 +5,6 @@ import styles from './K301ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { MonthlyReportItem } from '../../types/reportTypes';
 import { useMonthlyReport } from '../../hooks/useMonthlyReport';
-import BtnDefault from '../../ui/BtnDefault/BtnDefault';
 
 const K301ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -79,17 +78,9 @@ const K301ReportsMonthly = () => {
           ...corrections,
           ...pendingCorrections,
         }}
+        hasPendingCorrections={hasPending}
+        onSaveCorrections={saveAllCorrections}
       />
-
-      {/* Кнопка сохранить коррекции */}
-      {hasPending && (
-        <BtnDefault
-          className={styles['save-corrections-button']}
-          onClick={saveAllCorrections}
-        >
-          Сохранить коррекции
-        </BtnDefault>
-      )}
     </div>
   );
 };
