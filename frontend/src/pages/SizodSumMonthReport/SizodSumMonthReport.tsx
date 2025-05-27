@@ -1,44 +1,62 @@
-// src/pages/SizodSumHourReport/SizodSumHourReport.tsx
-import { useState } from 'react';
-import styles from '../../components/UniversalReportTable/UniversalReportTable.module.scss';
-import { MonthlyReportItem } from '../../types/reportTypes';
+// src/pages/SizodSumMonthReport/SizodSumMonthReport.tsx
+import { useState, useMemo } from 'react';
+import { MonthlyReportItem, CorrectionsMap } from '../../types/reportTypes'; // Удалите CorrectionEntry, если он не используется
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
-import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
+import { useMonthlyReport } from '../../hooks/useMonthlyReport';
 
 const SizodSumMonthReport = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  const dateParam = selectedDate
-    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(
-        selectedDate.getDate()
-      ).padStart(2, '0')}`
-    : '';
+  const monthParam = useMemo(() => {
+    return selectedDate
+      ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
+      : '';
+  }, [selectedDate]);
 
+  // Получаем данные и коррекции для каждого устройства
   const {
     data: k301Data,
+    corrections: k301Corrections,
+    pendingCorrections: k301PendingCorrections,
     loading: k301Loading,
     error: k301Error,
-  } = useMonthlyReportByUrl(`/api/reports/k301-monthly?month=${dateParam}`);
+    updatePendingCorrection: updateK301PendingCorrection,
+    saveAllCorrections: saveK301Corrections,
+    hasPending: k301HasPending,
+  } = useMonthlyReport('k301', monthParam);
+
   const {
     data: k302Data,
+    corrections: k302Corrections,
+    pendingCorrections: k302PendingCorrections,
     loading: k302Loading,
     error: k302Error,
-  } = useMonthlyReportByUrl(`/api/reports/k302-monthly?month=${dateParam}`);
+    updatePendingCorrection: updateK302PendingCorrection,
+    saveAllCorrections: saveK302Corrections,
+    hasPending: k302HasPending,
+  } = useMonthlyReport('k302', monthParam);
 
   const loading = k301Loading || k302Loading;
   const error = k301Error || k302Error;
 
-  const multiData = {
+  // Объединяем данные в multiData для UniversalReportTable
+  const multiData: Record<string, MonthlyReportItem[]> = useMemo(() => ({
     k301: k301Data,
     k302: k302Data,
+  }), [k301Data, k302Data]);
+
+  // Объединяем коррекции и pending коррекции для подсветки и отображения
+  const combinedCorrections: CorrectionsMap = {
+    ...k301Corrections,
+    ...k301PendingCorrections,
+    ...k302Corrections,
+    ...k302PendingCorrections,
   };
 
-  console.log(multiData.k301);
-
-
-  const columns = [
+  // Колонки — общий набор, где day — дата, остальные параметры — для отображения
+  const columns = useMemo(() => [
     {
-      key: 'daу',
+      key: 'day',
       label: 'Дата',
       render: (item: MonthlyReportItem) => {
         const date = new Date(item.day);
@@ -50,9 +68,10 @@ const SizodSumMonthReport = () => {
       },
     },
     { key: 'qt1Diff', label: 'QT1', unit: 'Гкал' },
-  ];
+  ], []);
 
-  const multiConfig = {
+  // Конфигурация мульти-устройств для UniversalReportTable
+  const multiConfig = useMemo(() => ({
     timeColumn: 'day',
     devices: [
       {
@@ -68,23 +87,48 @@ const SizodSumMonthReport = () => {
         columnConfig: columns.find((col) => col.key === 'qt1Diff'),
       },
     ],
+  }), [columns]);
+
+  // Обработчик изменения значения в ячейке для мульти-устройств
+  const handleCorrectValue = (day: string, field: string, newValue: number, deviceId: string) => {
+    const originalEntry = multiData[deviceId]?.find((item: MonthlyReportItem) => item.day === day);
+    const originalValue = originalEntry?.[field as keyof typeof originalEntry];
+    if (typeof originalValue === 'number') {
+      if (deviceId === 'k301') {
+        updateK301PendingCorrection(day, field, originalValue, newValue);
+      } else if (deviceId === 'k302') {
+        updateK302PendingCorrection(day, field, originalValue, newValue);
+      }
+    }
   };
 
+  // Обработчик сохранения всех коррекций для всех устройств
+  const handleSaveCorrections = async () => {
+    if (k301HasPending) await saveK301Corrections();
+    if (k302HasPending) await saveK302Corrections();
+  };
+
+  const hasPendingCorrections = k301HasPending || k302HasPending;
+
   return (
-    <div className={styles['report-container']}>
-      <UniversalReportTable<MonthlyReportItem>
-        multiData={multiData}
-        columns={columns}
-        title="Сравнение параметра QT1 (Гкал) (месячный отчет)"
-        generatedAt={new Date().toLocaleString()}
-        mode="multi-device"
-        multiConfig={multiConfig}
-        loading={loading}
-        error={error}
-        selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
-      />
-    </div>
+    <UniversalReportTable<MonthlyReportItem>
+      multiData={multiData}
+      columns={columns}
+      title="Сравнение параметра QT1 (Гкал) (месячный отчет)"
+      generatedAt={new Date().toLocaleString()}
+      mode="multi-device"
+      multiConfig={multiConfig}
+      loading={loading}
+      error={error}
+      selectedDate={selectedDate}
+      onDateChange={setSelectedDate}
+      isEditable={true}
+      onCorrectValue={handleCorrectValue}
+      corrections={combinedCorrections}
+      hasPendingCorrections={hasPendingCorrections}
+      onSaveCorrections={handleSaveCorrections}
+      reportType="monthly"
+    />
   );
 };
 

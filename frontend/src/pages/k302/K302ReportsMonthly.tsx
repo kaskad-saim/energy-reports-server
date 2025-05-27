@@ -1,20 +1,28 @@
 import { useState } from 'react';
 import styles from './K302ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
-
 import { MonthlyReportItem } from '../../types/reportTypes';
-import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
+import { useMonthlyReport } from '../../hooks/useMonthlyReport';
 
 const K302ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  const dateParam = selectedDate
+  const monthParam = selectedDate
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/k302-monthly?month=${dateParam}`);
+  const device = 'k302';
 
-  console.log(data);
+  const {
+    data,
+    corrections,
+    loading,
+    error,
+    pendingCorrections,
+    updatePendingCorrection,
+    saveAllCorrections,
+    hasPending,
+  } = useMonthlyReport(device, monthParam);
 
   const columns = [
     {
@@ -41,9 +49,18 @@ const K302ReportsMonthly = () => {
     { key: 'qm2DaySum', label: 'QM2', unit: 'т/ч' },
   ];
 
+  const handleCorrectValue = (day: string, field: string, newValue: number) => {
+    const originalEntry = data.find((item) => item.day === day);
+    const originalValue = originalEntry?.[field as keyof typeof originalEntry];
+    if (typeof originalValue === 'number') {
+      updatePendingCorrection(day, field, originalValue, newValue);
+    }
+  };
+
   return (
     <div className={styles['reports-page']}>
       <UniversalReportTable<MonthlyReportItem>
+        key={monthParam}
         data={data}
         columns={columns}
         title="Параметры узла учета K302 (месячный отчет)"
@@ -54,6 +71,14 @@ const K302ReportsMonthly = () => {
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
         reportType="monthly"
+        isEditable={true}
+        onCorrectValue={handleCorrectValue}
+        corrections={{
+          ...corrections,
+          ...pendingCorrections,
+        }}
+        hasPendingCorrections={hasPending}
+        onSaveCorrections={saveAllCorrections}
       />
     </div>
   );

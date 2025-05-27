@@ -13,7 +13,7 @@ import K295aK296aK295Page from './pages/K295aK296aK295/K295aK296aK295Page';
 import K295Page from './pages/к295/K295Page';
 import K301ReportsHourly from './pages/K301/K301ReportsHourly';
 import K301ReportsMonthly from './pages/K301/K301ReportsMonthly';
-// import K302ReportsMonthly from './pages/k302/K302ReportsMonthly';
+import K302ReportsMonthly from './pages/k302/K302ReportsMonthly';
 import K302HourlyReports from './pages/k302/K302ReportsHourly';
 import UPcarbonizParReportsHourly from './pages/UPcarbonizPar/UPcarbonizParReportsHourly';
 import UPk10bParReportsHourly from './pages/UPk10bPar/UPk10bParReportsHourly';
@@ -24,7 +24,7 @@ import MPA11ReportsHourly from './pages/MPA11/MPA11ReportsHourly';
 // import UPcarbonizParReportsMonthly from './pages/UPcarbonizPar/UPcarbonizParReportsMonthly';
 // import UPk10bParReportsMonthly from './pages/UPk10bPar/UPk10bParReportsMonthly';
 import K295ReportsHourly from './pages/к295/K295ReportsHourly';
-// import SizodSumMonthReport from './pages/SizodSumMonthReport/SizodSumMonthReport';
+import SizodSumMonthReport from './pages/SizodSumMonthReport/SizodSumMonthReport';
 // import K295ReportsMonthly from './pages/к295/K295ReportsMonthly';
 
 export const router = createBrowserRouter([
@@ -42,12 +42,12 @@ export const router = createBrowserRouter([
       // K302
       { path: 'k302', element: <K302Page /> },
       { path: 'k302/hourly-report', element: <K302HourlyReports /> },
-      // { path: 'k302/monthly-report', element: <K302ReportsMonthly /> },
+      { path: 'k302/monthly-report', element: <K302ReportsMonthly /> },
 
 
       // sizod sum hour report
       { path: 'sizod-sum-hour-report', element: <SizodSumHourReport /> },
-      // { path: 'sizod-sum-month-report', element: <SizodSumMonthReport /> },
+      { path: 'sizod-sum-month-report', element: <SizodSumMonthReport /> },
 
 
       //  УП карбонизация пар

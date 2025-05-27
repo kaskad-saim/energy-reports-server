@@ -38,7 +38,7 @@ interface UniversalReportTableProps<T> {
   onDateChange?: (date: Date | null) => void;
   reportType?: 'daily' | 'monthly';
   isEditable?: boolean;
-  onCorrectValue?: (day: string, field: string, newValue: number) => void;
+  onCorrectValue?: (day: string, field: string, newValue: number, deviceId: string) => void;
   corrections?: CorrectionsMap;
   hasPendingCorrections?: boolean;
   onSaveCorrections?: () => void;
@@ -102,18 +102,19 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
 
   const hasTotals = Object.keys(totals).length > 0;
 
-  const handleCellChange = (row: T, colKey: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const day = row['day'];
-    if (typeof day !== 'string' || !day.startsWith('20')) {
-      console.warn('Неверный формат даты в строке', row);
-      return;
-    }
-
-    const newValue = parseFloat(e.target.value);
-    if (!isNaN(newValue)) {
-      onCorrectValue?.(day, colKey, newValue);
-    }
-  };
+  const handleCellChange =
+    (row: T, colKey: string, deviceId: string = '') =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const day = row['day'];
+      if (typeof day !== 'string' || !day.startsWith('20')) {
+        console.warn('Неверный формат даты в строке', row);
+        return;
+      }
+      const newValue = parseFloat(e.target.value);
+      if (!isNaN(newValue)) {
+        onCorrectValue?.(day, colKey, newValue, deviceId);
+      }
+    };
 
   return (
     <div className={`${styles['universal-report-table']} ${styles['universal-report-table--with-calendar']}`}>
@@ -173,6 +174,10 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
                         const rowData = multiData[device.id]?.[index];
                         const columnConfig = device.columnConfig || columns.find((c) => c.key === device.param);
                         const value = rowData ? rowData[device.param] : null;
+
+                        // Проверка на необходимость подсветки коррекции
+                        const isCorrected = corrections[`${rowData?.day}-${device.param as string}-${device.id}`];
+
                         if (i === 0 && rowData) {
                           const timeValue = rowData[multiConfig.timeColumn];
                           return (
@@ -180,18 +185,46 @@ const UniversalReportTable = <T extends Record<string, number | string | null | 
                               <td className={styles['universal-report-table__time-cell']}>
                                 {columnConfig?.render ? columnConfig.render(rowData) : formatValue(timeValue)}
                               </td>
-                              <td>{columnConfig?.render ? columnConfig.render(rowData) : formatValue(value)}</td>
+                              <td>
+                                {isEditable && reportType === 'monthly' && typeof value === 'number' ? (
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    defaultValue={value}
+                                    onBlur={handleCellChange(rowData, device.param as string, device.id)}
+                                    className={styles['editable-cell-input']}
+                                    style={{
+                                      backgroundColor: isCorrected ? '#fff3cd' : 'inherit',
+                                      fontWeight: isCorrected ? 'bold' : 'normal',
+                                    }}
+                                  />
+                                ) : (
+                                  formatValue(value)
+                                )}
+                              </td>
                             </React.Fragment>
                           );
                         }
-                        if (rowData) {
-                          return (
-                            <td key={device.id}>
-                              {columnConfig?.render ? columnConfig.render(rowData) : formatValue(value)}
-                            </td>
-                          );
-                        }
-                        return <td key={device.id}>-</td>;
+
+                        return (
+                          <td key={device.id}>
+                            {isEditable && reportType === 'monthly' && typeof value === 'number' ? (
+                              <input
+                                type="number"
+                                step="0.01"
+                                defaultValue={value}
+                                onBlur={handleCellChange(rowData, device.param as string, device.id)}
+                                className={styles['editable-cell-input']}
+                                style={{
+                                  backgroundColor: isCorrected ? '#fff3cd' : 'inherit',
+                                  fontWeight: isCorrected ? 'bold' : 'normal',
+                                }}
+                              />
+                            ) : (
+                              formatValue(value)
+                            )}
+                          </td>
+                        );
                       })}
                     </tr>
                   ))
