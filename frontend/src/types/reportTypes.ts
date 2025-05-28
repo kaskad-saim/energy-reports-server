@@ -17,3 +17,4 @@ export interface CorrectionEntry {
 }
 
 export type CorrectionsMap = Record<string, CorrectionEntry>;
+export type PendingCorrectionsMap = Record<string, CorrectionEntry>;

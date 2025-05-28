@@ -2,21 +2,30 @@ import { useState } from 'react';
 import styles from './UPcarbonizParReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { MonthlyReportItem } from '../../types/reportTypes';
-import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
+import { useMonthlyReport } from '../../hooks/useMonthlyReport';
 
 const UPcarbonizParReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const dateParam = selectedDate
-    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(
-        selectedDate.getDate()
-      ).padStart(2, '0')}`
+    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/BB690-monthly?month=${dateParam}`);
+  const device = 'BB690'; // Устройство
+
+  const {
+    data,
+    corrections,
+    pendingCorrections,
+    loading,
+    error,
+    updatePendingCorrection,
+    saveAllCorrections,
+    hasPending,
+  } = useMonthlyReport(device, dateParam);
 
   const columns = [
-  {
+    {
       key: 'day',
       label: 'Дата',
       render: (item: MonthlyReportItem) => {
@@ -35,9 +44,18 @@ const UPcarbonizParReportsMonthly = () => {
     { key: 'qm1DaySum', label: 'QM1', unit: 'т/ч' },
   ];
 
+  const handleCorrectValue = (day: string, field: string, newValue: number) => {
+    const originalEntry = data.find((item) => item.day === day);
+    const originalValue = originalEntry?.[field as keyof typeof originalEntry];
+    if (typeof originalValue === 'number') {
+      updatePendingCorrection(day, field, originalValue, newValue);
+    }
+  };
+
   return (
     <div className={styles['reports-page']}>
       <UniversalReportTable<MonthlyReportItem>
+        key={dateParam}
         data={data}
         columns={columns}
         title="Параметры узла учета карбонизация пар (месячный отчет)"
@@ -47,6 +65,15 @@ const UPcarbonizParReportsMonthly = () => {
         error={error}
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
+        reportType="monthly"
+        isEditable={true}
+        onCorrectValue={handleCorrectValue}
+        corrections={{
+          ...corrections,
+          ...pendingCorrections,
+        }}
+        hasPendingCorrections={hasPending}
+        onSaveCorrections={saveAllCorrections}
       />
     </div>
   );

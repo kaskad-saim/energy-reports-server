@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import styles from './K295aK296aK295ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
-
 import { MonthlyReportItem } from '../../types/reportTypes';
-import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
+import { useMonthlyReport } from '../../hooks/useMonthlyReport';
 
 const K295aK296aK295ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -12,10 +11,18 @@ const K295aK296aK295ReportsMonthly = () => {
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/CC125-monthly?month=${dateParam}`);
+  const device = 'CC125'; // ID устройства
 
-  console.log(data);
-
+  const {
+    data,
+    corrections,
+    pendingCorrections,
+    loading,
+    error,
+    updatePendingCorrection,
+    saveAllCorrections,
+    hasPending,
+  } = useMonthlyReport(device, dateParam);
 
   const columns = [
     {
@@ -40,12 +47,21 @@ const K295aK296aK295ReportsMonthly = () => {
     { key: 'k295a_du15_accumulatedDiff', label: 'к295а питьевая ду15', unit: 'Гкал' },
   ];
 
+  const handleCorrectValue = (day: string, field: string, newValue: number) => {
+    const originalEntry = data.find((item) => item.day === day);
+    const originalValue = originalEntry?.[field as keyof typeof originalEntry];
+    if (typeof originalValue === 'number') {
+      updatePendingCorrection(day, field, originalValue, newValue);
+    }
+  };
+
   return (
     <div className={styles['reports-page']}>
       <UniversalReportTable<MonthlyReportItem>
+        key={dateParam} // Обязательно для перерендера при смене месяца
         data={data}
         columns={columns}
-        title="к295а/296а/295(вода речная, вода питьевая) (месячный отчет)"
+        title="к295а/296а/295 (вода речная, вода питьевая) (месячный отчет)"
         generatedAt={new Date().toLocaleString()}
         mode="single"
         loading={loading}
@@ -53,6 +69,14 @@ const K295aK296aK295ReportsMonthly = () => {
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
         reportType="monthly"
+        isEditable={true}
+        onCorrectValue={handleCorrectValue}
+        corrections={{
+          ...corrections,
+          ...pendingCorrections,
+        }}
+        hasPendingCorrections={hasPending}
+        onSaveCorrections={saveAllCorrections}
       />
     </div>
   );

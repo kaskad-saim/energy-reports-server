@@ -1,21 +1,13 @@
 // hooks/useMonthlyReport.ts
 
 import { useEffect, useState } from 'react';
+import { CorrectionsMap, PendingCorrectionsMap } from '../types/reportTypes';
 
 export interface MonthlyReportItem {
   [key: string]: number | string | null | undefined;
   day: string; // формат: "YYYY-MM-DD"
 }
 
-export interface CorrectionEntry {
-  day: string;
-  field: string;
-  originalValue: number;
-  correctedValue: number;
-}
-
-export type CorrectionsMap = Record<string, CorrectionEntry>;
-export type PendingCorrectionsMap = Record<string, CorrectionEntry>;
 
 const BASE_URL = 'http://localhost:3003';
 
@@ -67,6 +59,7 @@ export const useMonthlyReport = (device: string, month: string) => {
     if (Object.keys(pendingCorrections).length === 0) return;
 
     try {
+      setLoading(true);
       const res = await fetch(`${BASE_URL}/api/reports/save-corrections-batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -79,15 +72,21 @@ export const useMonthlyReport = (device: string, month: string) => {
 
       if (!res.ok) throw new Error('Ошибка при сохранении');
 
-      // Обновляем локальные коррекции
+      // После успешного сохранения, загружаем свежие данные с сервера
+      const reportRes = await fetch(`${BASE_URL}/api/reports/${device}-monthly?month=${month}`);
+      if (!reportRes.ok) throw new Error('Ошибка загрузки обновленного отчета');
+      const reportData = await reportRes.json();
+
+      setData(reportData);
       setCorrections((prev) => ({
         ...prev,
         ...pendingCorrections,
       }));
-
-      setPendingCorrections({}); // Очищаем очередь
+      setPendingCorrections({});
     } catch (e) {
       console.error('Не удалось сохранить коррекции:', e);
+    } finally {
+      setLoading(false);
     }
   };
 

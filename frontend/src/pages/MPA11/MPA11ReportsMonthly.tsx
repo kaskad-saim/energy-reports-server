@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styles from './MPA11ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { MonthlyReportItem } from '../../types/reportTypes';
-import { useMonthlyReportByUrl } from '../../hooks/useMonthlyReport';
+import { useMonthlyReport } from '../../hooks/useMonthlyReport';
 
 const MPA11ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -11,10 +11,18 @@ const MPA11ReportsMonthly = () => {
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
     : '';
 
-  const { data, loading, error } = useMonthlyReportByUrl(`/api/reports/BB93-monthly?month=${dateParam}`);
+  const device = 'BB93'; // Устройство, для которого загружаем данные
 
-  console.log(data);
-
+  const {
+    data,
+    corrections,
+    pendingCorrections,
+    loading,
+    error,
+    updatePendingCorrection,
+    saveAllCorrections,
+    hasPending,
+  } = useMonthlyReport(device, dateParam);
 
   const columns = [
     {
@@ -36,9 +44,18 @@ const MPA11ReportsMonthly = () => {
     { key: 'qm1DaySum', label: 'QM1', unit: 'т/ч' },
   ];
 
+  const handleCorrectValue = (day: string, field: string, newValue: number) => {
+    const originalEntry = data.find((item) => item.day === day);
+    const originalValue = originalEntry?.[field as keyof typeof originalEntry];
+    if (typeof originalValue === 'number') {
+      updatePendingCorrection(day, field, originalValue, newValue);
+    }
+  };
+
   return (
     <div className={styles['reports-page']}>
       <UniversalReportTable<MonthlyReportItem>
+        key={dateParam} // Обязательно для перерендера при смене месяца
         data={data}
         columns={columns}
         title="Параметры узла учета МПА11 (месячный отчет)"
@@ -49,6 +66,14 @@ const MPA11ReportsMonthly = () => {
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
         reportType="monthly"
+        isEditable={true} // Включаем возможность редактирования
+        onCorrectValue={handleCorrectValue}
+        corrections={{
+          ...corrections,
+          ...pendingCorrections,
+        }}
+        hasPendingCorrections={hasPending}
+        onSaveCorrections={saveAllCorrections}
       />
     </div>
   );
