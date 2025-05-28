@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './K295aK296aK295ReportsMonthly.module.scss';
 import UniversalReportTable from '../../components/UniversalReportTable/UniversalReportTable';
 import { MonthlyReportItem } from '../../types/reportTypes';
 import { useMonthlyReport } from '../../hooks/useMonthlyReport';
+import { applyCorrectionsToData } from '../../utils/applyCorrectionsToData';
 
 const K295aK296aK295ReportsMonthly = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  const dateParam = selectedDate
-    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`
-    : '';
+  const dateParam = useMemo(() => {
+    return selectedDate ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}` : '';
+  }, [selectedDate]);
 
   const device = 'CC125'; // ID устройства
 
@@ -55,11 +56,15 @@ const K295aK296aK295ReportsMonthly = () => {
     }
   };
 
+  const memoizedData = useMemo(() => {
+    return applyCorrectionsToData(data, corrections);
+  }, [data, corrections]);
+
   return (
     <div className={styles['reports-page']}>
       <UniversalReportTable<MonthlyReportItem>
-        key={dateParam} // Обязательно для перерендера при смене месяца
-        data={data}
+        key={dateParam}
+        data={memoizedData}
         columns={columns}
         title="к295а/296а/295 (вода речная, вода питьевая) (месячный отчет)"
         generatedAt={new Date().toLocaleString()}
